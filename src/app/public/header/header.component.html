@@ -1,23 +1,16 @@
 <div class="container-fluid bg-dark px-0">
   <div class="row gx-0">
+    <!-- Logo en versión escritorio -->
     <div class="col-lg-3 bg-dark d-none d-lg-block">
-      <a
-        href="index.html"
-        class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center"
-      >
-        <img
-          src="
-          https://firebasestorage.googleapis.com/v0/b/infinitytech-15a41.appspot.com/o/Logo-min.png?alt=media&token=0e8916f3-607a-48a0-af25-a60ffe88b5d2
-             "
-          alt="InfinityTech Logo"
-          class="mr-2"
-          style="height: 80px; width: auto"
-        />
+      <a href="index.html" class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center">
+        <img src="https://firebasestorage.googleapis.com/v0/b/infinitytech-15a41.appspot.com/o/Logo-min.png?alt=media&token=0e8916f3-607a-48a0-af25-a60ffe88b5d2"
+          alt="InfinityTech Logo" class="mr-2" style="height: 80px; width: auto" />
         <h1 class="m-0 display-4 text-primary text-uppercase">InfinityTech</h1>
       </a>
     </div>
 
     <div class="col-lg-9">
+      <!-- Barra superior con contacto y sesión (solo en escritorio) -->
       <div class="row gx-0 bg-secondary d-none d-lg-flex">
         <div class="col-lg-7 px-5 text-start">
           <div class="h-100 d-inline-flex align-items-center py-2 me-4">
@@ -38,30 +31,29 @@
         </div>
       </div>
 
+      <!-- Navbar principal -->
       <nav class="navbar navbar-expand-lg bg-dark navbar-dark p-3 p-lg-0 px-lg-5">
         <a href="index.html" class="navbar-brand d-block d-lg-none">
           <h1 class="m-0 display-4 text-primary text-uppercase">InfinityTech</h1>
         </a>
-        <button
-          type="button"
-          class="navbar-toggler"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarCollapse"
-        >
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
           <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
           <div class="navbar-nav mr-auto py-0">
             <a href="index.html" class="nav-item nav-link">Inicio</a>
             <a routerLink="/pages/videos-all" class="nav-item nav-link">Ejercicios</a>
             <a routerLink="/pages/grupos-musculares" class="nav-item nav-link">Grupos Musculares</a>
+
             <div class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Informacion</a>
+              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Información</a>
               <div class="dropdown-menu rounded-0 m-0">
                 <a routerLink="/pages/lesiones" class="dropdown-item">Lesiones</a>
-                <a class="dropdown-item">Guia de recuperacion</a>
+                <a class="dropdown-item">Guía de recuperación</a>
               </div>
             </div>
+
             <div class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Rutinas</a>
               <div class="dropdown-menu rounded-0 m-0">
@@ -69,34 +61,33 @@
                 <a routerLink="/pages/rutinas-users" class="dropdown-item">Mis Rutinas</a>
               </div>
             </div>
+
             <a routerLink="/pages/seguimiento" class="nav-item nav-link">Seguimiento</a>
-            <a routerLink="/contact" class="nav-item nav-link">Contactanos</a>
+            <a routerLink="/contact" class="nav-item nav-link">Contáctanos</a>
           </div>
 
           <!-- Botón de Notificaciones -->
-          <div class="d-flex align-items-center">
+          <div class="d-flex align-items-center position-relative">
             <div class="dropdown">
-              <button
-                class="btn btn-secondary position-relative"
-                type="button"
-                id="notificacionesDropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
+              <button class="btn btn-secondary position-relative" type="button"
+                id="notificacionesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fa fa-bell"></i>
-                <span *ngIf="notificaciones.length > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                  {{ notificaciones.length }} <!-- Número dinámico de notificaciones -->
+                <span *ngIf="notificaciones.length > 0"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  {{ notificaciones.length }}
                 </span>
               </button>
 
-              <!-- Lista de Notificaciones -->
-              <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notificacionesDropdown" style="min-width: 250px;">
+              <!-- Ajuste del menú de notificaciones -->
+              <ul class="dropdown-menu p-2 position-absolute end-0"
+                aria-labelledby="notificacionesDropdown"
+                style="min-width: 250px;">
                 <li *ngFor="let notificacion of notificaciones" class="dropdown-item">
                   <div class="d-flex align-items-center">
-                    <!-- Imagen del logo -->
-                    <img *ngIf="notificacion.logo" [src]="'data:image/png;base64,' + notificacion.logo" class="me-2" width="40" height="40" alt="Logo">
+                    <img *ngIf="notificacion.logo"
+                      [src]="'data:image/png;base64,' + notificacion.logo"
+                      class="me-2" width="40" height="40" alt="Logo">
                     <div>
-                      <!-- Título de la notificación -->
                       <strong>{{ notificacion.nombre }}</strong>
                       <small class="text-muted d-block">{{ formatFecha(notificacion.fecha_envio) }}</small>
                       <p class="mb-0">{{ notificacion.descripcion }}</p>
@@ -108,10 +99,14 @@
                   <a href="#" class="btn btn-link btn-sm">Ver todas</a>
                 </li>
               </ul>
-
             </div>
           </div>
 
+          <!-- Botón de sesión en versión móvil -->
+          <div class="d-flex align-items-center d-lg-none">
+            <a *ngIf="isLoggedIn" (click)="logout()" class="btn btn-primary mx-2">Cerrar sesión</a>
+            <a *ngIf="!isLoggedIn" [routerLink]="['/login']" class="btn btn-primary mx-2">Iniciar sesión</a>
+          </div>
         </div>
       </nav>
     </div>
