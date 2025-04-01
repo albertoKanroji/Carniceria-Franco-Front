@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
- //apiUrl: 'http://127.0.0.1:8001/api/v1',
- apiUrl: 'https://infinity-gym-backend-app-0d84c543cb2b.herokuapp.com/api/v1'
+ apiUrl: 'http://127.0.0.1:8001/api/v1',
+ //apiUrl: 'https://infinity-gym-backend-app-0d84c543cb2b.herokuapp.com/api/v1'
 
   //apiUrl: 'hhttps://infinity-gym-backend-app-0d84c543cb2b.herokuapp.com/api/v1'
 };

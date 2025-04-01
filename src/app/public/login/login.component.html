@@ -3,7 +3,7 @@
     <div class="col-md-6">
       <div class="card">
         <div class="card-body">
-          <h2 class="card-title text-center mb-4">Iniciar sesión</h2>
+          <h2 class="card-title text-center mb-4">Iniciar sesión gg</h2>
           <form (ngSubmit)="login()" #loginForm="ngForm">
             <div class="mb-3">
               <label for="usuarioEmail" class="form-label"
@@ -31,14 +31,14 @@
                 required
               />
             </div>
-            
+
 
             <button type="submit" class="btn btn-primary btn-block" [disabled]="loading">
               <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
               <span *ngIf="!loading" (click)="login()">Iniciar Sesion</span>
             </button>
           </form>
-         
+
         </div>
       </div>
     </div>

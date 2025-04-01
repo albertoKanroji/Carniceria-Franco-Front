@@ -65,7 +65,33 @@
             <a routerLink="/pages/seguimiento" class="nav-item nav-link">Seguimiento</a>
             <a routerLink="/contact" class="nav-item nav-link">Contáctanos</a>
           </div>
+          <div class="d-flex align-items-center">
+            <!-- Mostrar la imagen y el nombre del usuario solo si está logueado -->
+            <div
+              *ngIf="isLoggedIn"
+              class="user-info d-flex flex-column align-items-center mx-2 position-relative"
+            >
+              <a
+                *ngIf="userImage"
+                [routerLink]="['/pages/profile']"
+                class="position-relative"
+              >
+                <img
+                  [src]="userImage"
+                  alt="User Image"
+                  class="user-image rounded-circle"
+                />
+                <i
+                  *ngIf="profileStatusIcon"
+                  class="fas {{
+                    profileStatusIcon
+                  }} profile-status-icon position-absolute"
+                ></i>
+              </a>
+              <div class="user-name mt-2">{{ userName }}</div>
+            </div>
 
+          </div>
           <!-- Botón de Notificaciones -->
           <div class="d-flex align-items-center position-relative">
             <div class="dropdown">
