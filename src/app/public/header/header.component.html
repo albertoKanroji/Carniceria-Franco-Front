@@ -104,19 +104,19 @@
                 </span>
               </button>
 
-              <!-- Ajuste del menú de notificaciones -->
-              <ul class="dropdown-menu p-2 position-absolute end-0"
-                aria-labelledby="notificacionesDropdown"
-                style="min-width: 250px;">
+              <!-- Menú de notificaciones mejorado -->
+              <ul class="dropdown-menu p-2 dropdown-menu-end"
+                  aria-labelledby="notificacionesDropdown"
+                  style="min-width: 270px; max-width: 320px; word-wrap: break-word; white-space: normal;">
                 <li *ngFor="let notificacion of notificaciones" class="dropdown-item">
-                  <div class="d-flex align-items-center">
+                  <div class="d-flex align-items-start">
                     <img *ngIf="notificacion.logo"
                       [src]="'data:image/png;base64,' + notificacion.logo"
-                      class="me-2" width="40" height="40" alt="Logo">
-                    <div>
-                      <strong>{{ notificacion.nombre }}</strong>
+                      class="me-2 flex-shrink-0 rounded-circle" width="40" height="40" alt="Logo">
+                    <div class="text-wrap" style="max-width: 230px;">
+                      <strong class="d-block">{{ notificacion.nombre }}</strong>
                       <small class="text-muted d-block">{{ formatFecha(notificacion.fecha_envio) }}</small>
-                      <p class="mb-0">{{ notificacion.descripcion }}</p>
+                      <p class="mb-0 text-break">{{ notificacion.descripcion }}</p>
                     </div>
                   </div>
                 </li>
@@ -127,6 +127,7 @@
               </ul>
             </div>
           </div>
+
 
           <!-- Botón de sesión en versión móvil -->
           <div class="d-flex align-items-center d-lg-none">
