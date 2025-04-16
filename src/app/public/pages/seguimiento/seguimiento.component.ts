@@ -55,6 +55,7 @@ export class SeguimientoComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log('hola');
     this.LOAD_IMAGES();
     this.checkUploadAvailability();
     // Crear instancia de la modal al iniciar el componente

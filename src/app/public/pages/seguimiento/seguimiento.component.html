@@ -47,7 +47,7 @@
   </div>
 
   <!-- Botón de subida -->
-  <div class="row mt-4">
+  <div *ngIf="!canUpload" class="row mt-4">
     <div class="col text-center">
       <button (click)="saveImagesAsBase64()" class="btn btn-primary">Subir fotos</button>
     </div>

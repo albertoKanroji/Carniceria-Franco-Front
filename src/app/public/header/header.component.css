@@ -26,3 +26,20 @@
 .profile-status-icon.fa-check-circle {
   color: green;
 }
+/* Para MOBILE: menú a la derecha */
+@media (max-width: 991.98px) {
+  .notificaciones-dropdown {
+    right: 0 !important;
+    left: auto !important;
+    transform: translateX(0%) !important;
+  }
+}
+
+/* Para DESKTOP: menú a la izquierda */
+@media (min-width: 992px) {
+  .notificaciones-dropdown {
+    left: 0 !important;
+    right: auto !important;
+    transform: translateX(0%) !important;
+  }
+}

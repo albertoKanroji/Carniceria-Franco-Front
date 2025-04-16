@@ -2,12 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/services/auth-service/auth-service.service';
 import { NotificacionService } from 'src/services/notificacion-service/notificaciones.service';
+declare var bootstrap: any;
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
+  modalNotificacion: any;
   selectedTheme: string | undefined;
   loading: boolean = false;
   notificaciones: any[]  = [];
@@ -16,7 +18,16 @@ export class HeaderComponent implements OnInit {
   userImage: string | null = null;
   userName: string | null = null;
   profileStatusIcon: string | null = null;
+  mostrarModal(notificacion: any) {
+    this.modalNotificacion = notificacion;
 
+    // Esperar al render y abrir modal
+    setTimeout(() => {
+      const modalElement = document.getElementById('notificacionModal');
+      const bsModal = new bootstrap.Modal(modalElement);
+      bsModal.show();
+    }, 0);
+  }
   constructor(private router: Router, private authService: AuthService, private notificacionService: NotificacionService) {
     this.authService.isLoggedIn$.subscribe((isLoggedIn) => {
       this.isLoggedIn = isLoggedIn;

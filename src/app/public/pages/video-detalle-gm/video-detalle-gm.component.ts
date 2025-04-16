@@ -1,45 +1,77 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { GruposMuscularesService } from 'src/services/grupos-musculares/grupos-musculares.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-video-detalle-gm',
   templateUrl: './video-detalle-gm.component.html',
-  styleUrls: ['./video-detalle-gm.component.css']
+  styleUrls: ['./video-detalle-gm.component.css'],
 })
 export class VideoDetalleGMComponent implements OnInit {
   loading1 = false;
   loading2 = false;
-  loadingContenido= false;
+  loadingContenido = false;
   rutina!: any;
   ejercicios: any[] = []; // Array para almacenar los ejercicios
-  rutinas: any[]  = [];
-  tags: any[]  = [];
-  equipo: any[]  = [];
+  rutinas: any[] = [];
+  tags: any[] = [];
+  equipo: any[] = [];
   loading: boolean = false;
+  sanitizedVideoUrl!: SafeResourceUrl;
+  sanitizedYouTubeUrl!: SafeResourceUrl;
+  constructor(
+    private route: ActivatedRoute,
+    private rutinasService: GruposMuscularesService,
+    private sanitizer: DomSanitizer
+  ) {}
+  isYouTubeUrl(url: string): boolean {
+    console.warn(url)
+    return url?.includes('youtube.com') || url?.includes('youtu.be');
+  }
 
-  constructor(private route: ActivatedRoute, private rutinasService: GruposMuscularesService) { }
+  updateYouTubeUrl(): void {
+    if (this.isYouTubeUrl(this.rutina.video_url)) {
+      const videoId = this.extractYouTubeId(this.rutina.video_url);
+      this.sanitizedYouTubeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        `https://www.youtube.com/embed/${videoId}`
+      );
+    }
+  }
 
+  extractYouTubeId(url: string): string {
+    try {
+      if (url.includes('youtu.be')) {
+        return url.split('youtu.be/')[1].split('?')[0];
+      } else if (url.includes('watch?v=')) {
+        return new URL(url).searchParams.get('v') || '';
+      }
+    } catch (e) {
+      return '';
+    }
+    return '';
+  }
   ngOnInit(): void {
+ //   this.updateYouTubeUrl();
     this.obtenerDetalleRutina();
-   // this.obtenerEjerciciosDeRutina();
-   this.obtenerGruposMusculares()
-   this.getTags()
-   this.getEquipo()
+    // this.obtenerEjerciciosDeRutina();
+    this.obtenerGruposMusculares();
+    this.getTags();
+    this.getEquipo();
   }
 
   obtenerDetalleRutina(): void {
-    this.loadingContenido=true;
+    this.loadingContenido = true;
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.rutinasService.VideosGMDetalle(id).subscribe(
       (data: any) => {
         this.rutina = data.data;
-        console.log(  this.rutina)
-        this.loadingContenido=false;
+        console.log(this.rutina);
+        this.loadingContenido = false;
       },
       (error) => {
         console.error('Error al obtener el detalle de la rutina:', error);
-        this.loadingContenido=false;
+        this.loadingContenido = false;
       }
     );
   }
@@ -49,7 +81,7 @@ export class VideoDetalleGMComponent implements OnInit {
     this.rutinasService.getTagsVideo(id).subscribe(
       (data: any) => {
         this.equipo = data.data; // Asegúrate de que data sea un array de rutinas
-        console.log(data)
+        console.log(data);
         this.loading = false;
       },
       (error) => {
@@ -64,7 +96,7 @@ export class VideoDetalleGMComponent implements OnInit {
     this.rutinasService.getEquipoVideo(id).subscribe(
       (data: any) => {
         this.tags = data.data; // Asegúrate de que data sea un array de rutinas
-        console.log(data)
+        console.log(data);
         this.loading = false;
       },
       (error) => {
@@ -78,7 +110,7 @@ export class VideoDetalleGMComponent implements OnInit {
     this.rutinasService.obtenerGruposMusculares().subscribe(
       (data: any) => {
         this.rutinas = data.data; // Asegúrate de que data sea un array de rutinas
-        console.log(data)
+        console.log(data);
         this.loading = false;
       },
       (error) => {
@@ -87,5 +119,4 @@ export class VideoDetalleGMComponent implements OnInit {
       }
     );
   }
-
 }

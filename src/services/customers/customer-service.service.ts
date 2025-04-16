@@ -9,7 +9,7 @@ import {environment} from "../../environments/environment";
 export class CustomerService {
 
 public customer=localStorage.getItem('clienteId');
-  constructor(private http: HttpClient,private customerService: CustomerService) {}
+  constructor(private http: HttpClient) {}
 
   getCustomerData(clienteId: number): Observable<any> {
     return this.http.get<any>(`${environment.apiUrl}/getData?clienteId=${clienteId}`);
