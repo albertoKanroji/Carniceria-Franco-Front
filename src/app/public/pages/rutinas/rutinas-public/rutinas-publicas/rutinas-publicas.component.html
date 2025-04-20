@@ -25,15 +25,7 @@
           />
         </div>
         <div class="bg-dark d-flex align-items-center rounded-bottom p-4">
-          <div
-            class="flex-shrink-0 text-center text-secondary border-end border-secondary pe-3 me-3"
-          >
-            <span>{{ rutina.created_at | date : "dd" }}</span>
-            <h6 class="text-light text-uppercase mb-0">
-              {{ rutina.created_at | date : "MMM" }}
-            </h6>
-            <span>{{ rutina.created_at | date : "yyyy" }}</span>
-          </div>
+
           <a
             class="h5 text-uppercase text-light"
             [href]="'/pages/rutinas-publicas/' + rutina.id"

@@ -18,16 +18,31 @@ export class HeaderComponent implements OnInit {
   userImage: string | null = null;
   userName: string | null = null;
   profileStatusIcon: string | null = null;
-  mostrarModal(notificacion: any) {
-    this.modalNotificacion = notificacion;
+  notificacionesOriginales: any[] = [];
 
-    // Esperar al render y abrir modal
-    setTimeout(() => {
-      const modalElement = document.getElementById('notificacionModal');
-      const bsModal = new bootstrap.Modal(modalElement);
-      bsModal.show();
-    }, 0);
+  mostrarModal(notificacion: any): void {
+    // Recuperar del localStorage las IDs de notificaciones vistas
+    const vistas = JSON.parse(localStorage.getItem('notificaciones_vistas') || '[]');
+
+    // Si no está marcada como vista, agregarla
+    if (!vistas.includes(notificacion.id)) {
+      vistas.push(notificacion.id);
+      localStorage.setItem('notificaciones_vistas', JSON.stringify(vistas));
+    }
+
+    // Aquí muestra el modal o haz lo que quieras con la notificación
+    this.modalNotificacion = notificacion;
+    const modal = new bootstrap.Modal(document.getElementById('notificacionModal')!);
+    modal.show();
+
+    // Actualiza la lista con las que aún no han sido vistas
+    this.filtrarNotificacionesNoVistas();
   }
+  filtrarNotificacionesNoVistas(): void {
+    const vistas = JSON.parse(localStorage.getItem('notificaciones_vistas') || '[]');
+    this.notificaciones = this.notificacionesOriginales.filter(n => !vistas.includes(n.id));
+  }
+
   constructor(private router: Router, private authService: AuthService, private notificacionService: NotificacionService) {
     this.authService.isLoggedIn$.subscribe((isLoggedIn) => {
       this.isLoggedIn = isLoggedIn;
@@ -63,13 +78,13 @@ export class HeaderComponent implements OnInit {
     this.selectedTheme = localStorage.getItem('selectedTheme') || 'light'; // Establecer el tema predeterminado como 'light' si no hay ningún tema seleccionado
     this.updateButtonText(this.selectedTheme); // Actualizar el texto del botón al cargar la aplicación
     this.applyTheme(this.selectedTheme); // Aplicar el tema al cargar la aplicación
-    this.obtenerRutinas(); // Obtener las rutinas al cargar la aplicación
+    this.obtenerNotificaciones(); // Obtener las rutinas al cargar la aplicación
   }
-  obtenerRutinas(): void {
+  obtenerNotificaciones(): void {
     this.loading = true;
     this.notificacionService.obtenerNotificaciones().subscribe(
       (data: any) => {
-        this.notificaciones = data.data; // Asegúrate de que data sea un array de rutinas
+        this.notificacionesOriginales = data.data;
         console.log(data)
         this.loading = false;
       },

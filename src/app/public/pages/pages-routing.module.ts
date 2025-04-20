@@ -17,6 +17,7 @@ import { VideosAllComponent } from './videos-all/videos-all.component';
 import { VideosSelectComponent } from './videos-select/videos-select.component';
 import { SeguimientoComponent } from './seguimiento/seguimiento.component';
 import { LesionesComponent } from './lesiones/lesiones.component';
+import { GuiaRecuperacionComponent } from './guia-recuperacion/guia-recuperacion.component';
 
 const routes: Routes = [
   {
@@ -77,6 +78,11 @@ const routes: Routes = [
   {
     path: 'lesiones',
     component:LesionesComponent,
+
+  },
+  {
+    path: 'guia-recuperacion',
+    component:GuiaRecuperacionComponent,
 
   },
   {

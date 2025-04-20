@@ -15,6 +15,7 @@ import { UserProfileComponent } from './user-profile/user-profile.component';
 import { VideosAllComponent } from './videos-all/videos-all.component';
 import { VideosSelectComponent } from './videos-select/videos-select.component';
 import { SeguimientoComponent } from './seguimiento/seguimiento.component';
+import { GuiaRecuperacionComponent } from './guia-recuperacion/guia-recuperacion.component';
 
 
 @NgModule({
@@ -31,6 +32,7 @@ import { SeguimientoComponent } from './seguimiento/seguimiento.component';
    VideosAllComponent,
    VideosSelectComponent,
    SeguimientoComponent,
+   GuiaRecuperacionComponent,
 
   ],
   imports: [

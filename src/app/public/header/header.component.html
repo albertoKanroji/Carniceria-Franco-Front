@@ -92,7 +92,7 @@
                 <a routerLink="/pages/lesiones" class="dropdown-item"
                   >Lesiones</a
                 >
-                <a class="dropdown-item">Guía de recuperación</a>
+                <a routerLink="/pages/guia-recuperacion" class="dropdown-item">Guía de recuperación</a>
               </div>
             </div>
 
@@ -126,10 +126,10 @@
               >
                 <i class="fa fa-bell"></i>
                 <span
-                  *ngIf="notificaciones.length > 0"
+                  *ngIf="notificacionesOriginales.length > 0"
                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                 >
-                  {{ notificaciones.length }}
+                  {{ notificacionesOriginales.length }}
                 </span>
               </button>
 
@@ -139,7 +139,7 @@
                 aria-labelledby="notificacionesDropdown"
               >
                 <li
-                  *ngFor="let notificacion of notificaciones"
+                  *ngFor="let notificacion of notificacionesOriginales"
                   (click)="mostrarModal(notificacion)"
                   class="dropdown-item"
                 >
