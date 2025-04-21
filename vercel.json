@@ -1,8 +1,9 @@
 {
   "rewrites": [
     {
-      "source": "/api/v1/:path*",
-      "destination": "http://dev.xrom.cc:8021/api/v1/:path*"
+      "source": "/api/(.*)",
+      "destination": "http://dev.xrom.cc:8021/api/$1"
     }
   ]
 }
+
