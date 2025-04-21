@@ -1,7 +1,6 @@
 {
   "name": "convert-theme",
   "version": "1.0.0",
-
   "scripts": {
     "ng": "ng",
     "start": "node server.js",
@@ -21,11 +20,13 @@
     "@angular/router": "^14.2.0",
     "@vercel/analytics": "^1.2.2",
     "bootstrap": "^5.2.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^3.0.5",
     "ngx-toastr": "^13.2.1",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.11.4",
-    "express": "^4.18.2"
+    "zone.js": "~0.11.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^14.2.8",
