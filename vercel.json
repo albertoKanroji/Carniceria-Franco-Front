@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/v1/:path*",
-      "destination": "https://infinity-api-app-05bb275c7cec.herokuapp.com/api/v1/:path*"
+      "destination": "http://dev.xrom.cc:8021/api/v1/:path*"
     }
   ]
 }
