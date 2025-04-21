@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://infinity-gym-backend-app-0d84c543cb2b.herokuapp.com/api/v1'
+  apiUrl: 'http://45.33.97.50:8021/api/v1'
 };
