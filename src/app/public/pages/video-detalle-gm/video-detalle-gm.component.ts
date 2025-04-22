@@ -29,7 +29,18 @@ export class VideoDetalleGMComponent implements OnInit {
     console.warn(url)
     return url?.includes('youtube.com') || url?.includes('youtu.be');
   }
+  getSafeVideoUrl(url: string): SafeResourceUrl {
+    const videoId = this.extractVideoId(url);
+    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+  }
 
+  extractVideoId(url: string): string {
+    // Soporta links tipo youtu.be o youtube.com/watch?v=
+    const regex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]+)/;
+    const match = url.match(regex);
+    return match ? match[1] : '';
+  }
   updateYouTubeUrl(): void {
     if (this.isYouTubeUrl(this.rutina.video_url)) {
       const videoId = this.extractYouTubeId(this.rutina.video_url);

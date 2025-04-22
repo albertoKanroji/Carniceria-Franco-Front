@@ -15,26 +15,28 @@
     >
   </div>
   <div class="row g-5">
-    <div class="col-lg-4" *ngFor="let rutina of rutinas">
-      <div class="blog-item">
+    <div class="col-12 col-sm-6 col-lg-4" *ngFor="let rutina of rutinas">
+      <div class="blog-item h-100 d-flex flex-column justify-content-between">
         <div class="position-relative overflow-hidden rounded-top">
           <img
-            class="img-fluid"
+            class="img-fluid w-100"
             [src]="'data:image/jpeg;base64,' + rutina.imagen"
             alt=""
+           style="object-fit: contain; height: 300px; background-color: #000;"
           />
         </div>
         <div class="bg-dark d-flex align-items-center rounded-bottom p-4">
-
           <a
-            class="h5 text-uppercase text-light"
+            class="h5 text-uppercase text-light mb-0 text-center w-100"
             [href]="'/pages/rutinas-publicas/' + rutina.id"
-            >{{ rutina.nombre }}</a
           >
+            {{ rutina.nombre }}
+          </a>
         </div>
       </div>
     </div>
   </div>
+
 </div>
 <ng-template #loader>
   <div class="text-center" style="margin-top: 5%">

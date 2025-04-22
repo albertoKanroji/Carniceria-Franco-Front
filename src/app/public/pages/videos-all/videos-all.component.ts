@@ -10,6 +10,10 @@ import { GruposMuscularesService } from 'src/services/grupos-musculares/grupos-m
 export class VideosAllComponent implements OnInit {
   loading1 = false;
   loading2 = false;
+  page = 1;
+perPage = 12;
+loadingVIDEOS = false;
+hasMoreVideos = true;
   loadingContenido= false;
   rutina!: any;
   selectedGroup: string = '';
@@ -45,19 +49,33 @@ export class VideosAllComponent implements OnInit {
     this.getGruposMuscularesAll();
   }
   getVideosAll(): void {
-    this.loader2 = true;
-    this.rutinasService.getAllVideos().subscribe(
-      (data: any) => {
-        this.ejercicios = data.data;
-        console.log(this.ejercicios);
-        this.filteredVideos = this.ejercicios;
-        this.loader2 = false;
+    if (this.loadingVIDEOS || !this.hasMoreVideos) return;
+
+    this.loadingVIDEOS = true;
+    this.rutinasService.getAllVideos(this.page, this.perPage).subscribe(
+      (res: any) => {
+        const newVideos = res.data;
+        this.filteredVideos = [...this.filteredVideos, ...newVideos];
+        this.page++;
+
+        const meta = res.meta;
+        this.hasMoreVideos = this.page <= meta.last_page;
+        this.loadingVIDEOS = false;
       },
       (error) => {
         console.error('Error al obtener las rutinas:', error);
-        this.loader2 = false;
+        this.loadingVIDEOS = false;
       }
     );
+  }
+  onScroll(): void {
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.body.scrollHeight;
+
+    if (scrollTop + windowHeight >= documentHeight - 100) {
+      this.getVideosAll(); // Carga más si el scroll está cerca del final
+    }
   }
   getGruposMuscularesAll(): void {
     this.loader2 = true;
