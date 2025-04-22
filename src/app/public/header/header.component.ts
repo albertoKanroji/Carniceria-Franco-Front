@@ -12,7 +12,7 @@ export class HeaderComponent implements OnInit {
   modalNotificacion: any;
   selectedTheme: string | undefined;
   loading: boolean = false;
-  notificaciones: any[]  = [];
+  notificaciones: any[] = [];
   isLoggedIn = false;
   buttonText!: string;
   userImage: string | null = null;
@@ -21,29 +21,38 @@ export class HeaderComponent implements OnInit {
   notificacionesOriginales: any[] = [];
 
   mostrarModal(notificacion: any): void {
-    // Recuperar del localStorage las IDs de notificaciones vistas
-    const vistas = JSON.parse(localStorage.getItem('notificaciones_vistas') || '[]');
+    const vistas = JSON.parse(
+      localStorage.getItem('notificaciones_vistas') || '[]'
+    );
 
-    // Si no está marcada como vista, agregarla
     if (!vistas.includes(notificacion.id)) {
       vistas.push(notificacion.id);
       localStorage.setItem('notificaciones_vistas', JSON.stringify(vistas));
     }
 
-    // Aquí muestra el modal o haz lo que quieras con la notificación
     this.modalNotificacion = notificacion;
-    const modal = new bootstrap.Modal(document.getElementById('notificacionModal')!);
+    const modal = new bootstrap.Modal(
+      document.getElementById('notificacionModal')!
+    );
     modal.show();
-
-    // Actualiza la lista con las que aún no han sido vistas
-    this.filtrarNotificacionesNoVistas();
+    this.notificacionesOriginales = this.notificacionesOriginales.filter(
+      (n) => n.id !== notificacion.id
+    );
   }
   filtrarNotificacionesNoVistas(): void {
-    const vistas = JSON.parse(localStorage.getItem('notificaciones_vistas') || '[]');
-    this.notificaciones = this.notificacionesOriginales.filter(n => !vistas.includes(n.id));
+    const vistas = JSON.parse(
+      localStorage.getItem('notificaciones_vistas') || '[]'
+    );
+    this.notificaciones = this.notificacionesOriginales.filter(
+      (n) => !vistas.includes(n.id)
+    );
   }
 
-  constructor(private router: Router, private authService: AuthService, private notificacionService: NotificacionService) {
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private notificacionService: NotificacionService
+  ) {
     this.authService.isLoggedIn$.subscribe((isLoggedIn) => {
       this.isLoggedIn = isLoggedIn;
       if (this.isLoggedIn) {
@@ -63,15 +72,18 @@ export class HeaderComponent implements OnInit {
   private updateUserData() {
     const userData = this.authService.getUserData();
     this.userName = `${userData.nombre}`;
-    this.userImage = `https://ui-avatars.com/api/?name=${encodeURIComponent(this.userName)}`;
+    this.userImage = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      this.userName
+    )}`;
     this.updateProfileStatusIcon();
   }
 
-  private updateProfileStatusIcon():void {
+  private updateProfileStatusIcon(): void {
     const profileIsComplete = localStorage.getItem('profileIsComplete') || 'no';
-    this.profileStatusIcon = profileIsComplete === 'si'
-      ? 'fa-check-circle' // Icono de check
-      : 'fa-exclamation-circle'; // Icono de admiración
+    this.profileStatusIcon =
+      profileIsComplete === 'si'
+        ? 'fa-check-circle' // Icono de check
+        : 'fa-exclamation-circle'; // Icono de admiración
   }
   ngOnInit() {
     // Obtener el tema seleccionado del localStorage al cargar la aplicación
@@ -82,10 +94,15 @@ export class HeaderComponent implements OnInit {
   }
   obtenerNotificaciones(): void {
     this.loading = true;
+
+    const vistas = JSON.parse(localStorage.getItem('notificaciones_vistas') || '[]');
+
     this.notificacionService.obtenerNotificaciones().subscribe(
       (data: any) => {
-        this.notificacionesOriginales = data.data;
-        console.log(data)
+        // Filtra las no vistas
+        this.notificacionesOriginales = data.data.filter(
+          (n: any) => !vistas.includes(n.id)
+        );
         this.loading = false;
       },
       (error) => {
@@ -94,6 +111,7 @@ export class HeaderComponent implements OnInit {
       }
     );
   }
+
   formatFecha(fecha: string): string {
     const fechaObj = new Date(fecha);
     const opciones: Intl.DateTimeFormatOptions = {
@@ -101,7 +119,7 @@ export class HeaderComponent implements OnInit {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     };
     return fechaObj.toLocaleDateString('es-ES', opciones);
   }

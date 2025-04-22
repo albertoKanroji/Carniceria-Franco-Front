@@ -32,7 +32,6 @@
             <i class="fa fa-phone-alt text-primary me-2"></i>
             <h6 class="mb-0"></h6>
           </div>
-
         </div>
 
         <div class="col-lg-5 px-5 text-end">
@@ -92,7 +91,9 @@
                 <a routerLink="/pages/lesiones" class="dropdown-item"
                   >Lesiones</a
                 >
-                <a routerLink="/pages/guia-recuperacion" class="dropdown-item">Guía de recuperación</a>
+                <a routerLink="/pages/guia-recuperacion" class="dropdown-item"
+                  >Guía de recuperación</a
+                >
               </div>
             </div>
 
@@ -114,58 +115,66 @@
               >Seguimiento</a
             >
             <a routerLink="/contact" class="nav-item nav-link">Contáctanos</a>
-               <!-- Botón de Notificaciones -->
-          <div class="d-flex align-items-center justify-content-end position-relative w-100 px-3 mt-3 mt-lg-0">
-            <div class="dropdown">
-              <button
-                class="btn btn-secondary position-relative"
-                type="button"
-                id="notificacionesDropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i class="fa fa-bell"></i>
-                <span
-                  *ngIf="notificacionesOriginales.length > 0"
-                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            <!-- Botón de Notificaciones -->
+            <div
+              class="d-flex align-items-center justify-content-end position-relative w-100 px-3 mt-3 mt-lg-0"
+            >
+              <div class="dropdown">
+                <button
+                  class="btn btn-secondary position-relative"
+                  type="button"
+                  id="notificacionesDropdown"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
                 >
-                  {{ notificacionesOriginales.length }}
-                </span>
-              </button>
+                  <i class="fa fa-bell"></i>
+                  <span
+                    *ngIf="notificacionesOriginales.length > 0"
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  >
+                    {{ notificacionesOriginales.length }}
+                  </span>
+                </button>
 
-              <!-- Menú de notificaciones -->
-              <ul
-                class="dropdown-menu p-2 notificaciones-dropdown"
-                aria-labelledby="notificacionesDropdown"
-              >
-                <li
-                  *ngFor="let notificacion of notificacionesOriginales"
-                  (click)="mostrarModal(notificacion)"
-                  class="dropdown-item"
+                <!-- Menú de notificaciones -->
+                <ul
+                  class="dropdown-menu p-2 notificaciones-dropdown"
+                  aria-labelledby="notificacionesDropdown"
                 >
-                  <div class="d-flex align-items-start">
-                    <img
-                      *ngIf="notificacion.logo"
-                      [src]="'data:image/png;base64,' + notificacion.logo"
-                      class="me-2 flex-shrink-0 rounded-circle"
-                      width="40"
-                      height="40"
-                      alt="Logo"
-                    />
-                    <div class="text-wrap" style="max-width: 230px">
-                      <strong class="d-block">{{ notificacion.nombre }}</strong>
-                      <small class="text-muted d-block">{{ formatFecha(notificacion.fecha_envio) }}</small>
-                      <p class="mb-0 text-break">{{ notificacion.descripcion }}</p>
+                  <li
+                    *ngFor="let notificacion of notificacionesOriginales"
+                    (click)="mostrarModal(notificacion)"
+                    class="dropdown-item"
+                  >
+                    <div class="d-flex align-items-start">
+                      <img
+                        *ngIf="notificacion.logo"
+                        [src]="'data:image/png;base64,' + notificacion.logo"
+                        class="me-2 flex-shrink-0 rounded-circle"
+                        width="40"
+                        height="40"
+                        alt="Logo"
+                      />
+                      <div class="text-wrap" style="max-width: 230px">
+                        <strong class="d-block">{{
+                          notificacion.nombre
+                        }}</strong>
+                        <small class="text-muted d-block">{{
+                          formatFecha(notificacion.fecha_envio)
+                        }}</small>
+                        <p class="mb-0 text-break">
+                          {{ notificacion.descripcion }}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </li>
-                <li><hr class="dropdown-divider" /></li>
-                <li class="text-center">
-                  <a href="#" class="btn btn-link btn-sm">Ver todas</a>
-                </li>
-              </ul>
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li class="text-center">
+                    <a href="#" class="btn btn-link btn-sm">Ver todas</a>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
           </div>
           <div class="d-flex align-items-center">
             <!-- Mostrar la imagen y el nombre del usuario solo si está logueado -->
@@ -193,8 +202,6 @@
               <div class="user-name mt-2">{{ userName }}</div>
             </div>
           </div>
-
-
 
           <!-- Botón de sesión en versión móvil -->
           <div class="d-flex align-items-center d-lg-none">
