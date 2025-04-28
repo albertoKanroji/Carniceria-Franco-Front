@@ -29,6 +29,7 @@ export class VideoDetalleGMComponent implements OnInit {
     console.warn(url)
     return url?.includes('youtube.com') || url?.includes('youtu.be');
   }
+  safeVideoUrl!: SafeResourceUrl;
   getSafeVideoUrl(url: string): SafeResourceUrl {
     const videoId = this.extractVideoId(url);
     const embedUrl = `https://www.youtube.com/embed/${videoId}`;
@@ -63,6 +64,9 @@ export class VideoDetalleGMComponent implements OnInit {
     return '';
   }
   ngOnInit(): void {
+    if (this.rutina && this.rutina.video_url) {
+      this.safeVideoUrl = this.getSafeVideoUrl(this.rutina.video_url);
+    }
  //   this.updateYouTubeUrl();
     this.obtenerDetalleRutina();
     // this.obtenerEjerciciosDeRutina();
@@ -78,6 +82,9 @@ export class VideoDetalleGMComponent implements OnInit {
       (data: any) => {
         this.rutina = data.data;
         console.log(this.rutina);
+        if (this.rutina && this.rutina.video_url) {
+          this.safeVideoUrl = this.getSafeVideoUrl(this.rutina.video_url);
+        }
         this.loadingContenido = false;
       },
       (error) => {
