@@ -62,3 +62,20 @@
   border: 1px solid #ddd;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
+.upload-area {
+  border: 2px dashed #666;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+
+.upload-area.dragover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #fff;
+}
+.card-img-top {
+  border-radius: 6px 6px 0 0;
+}
+.card-title {
+  font-weight: 700;
+  text-transform: uppercase;
+}

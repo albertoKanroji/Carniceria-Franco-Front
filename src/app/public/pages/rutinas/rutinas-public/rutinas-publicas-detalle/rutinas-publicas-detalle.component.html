@@ -37,22 +37,20 @@
             </tr>
           </thead>
           <tbody>
-            <ng-container *ngFor="let dia of ejerciciosPorDia | keyvalue">
+            <ng-container *ngFor="let dia of ejerciciosOrdenados">
               <tr>
                 <td colspan="3" class="day-heading">{{ dia.key }}</td>
               </tr>
-              <ng-container *ngFor="let ejercicio of dia.value">
-                <tr>
-                  <td></td>
-                  <td>{{ ejercicio.nombre }}</td>
-                  <td>
-                    <a
-                      [href]="'/pages/grupos-musculares/video/' + ejercicio.id"
-                    >
-                      Ver Video
-                    </a>
-                  </td>
-                </tr>
+              <ng-container *ngIf="dia.value.length; else noEjercicios">
+                <ng-container *ngFor="let ejercicio of dia.value">
+                  <tr>
+                    <td></td>
+                    <td>{{ ejercicio.nombre }}</td>
+                    <td>
+                      <a [href]="'/pages/grupos-musculares/video/' + ejercicio.id">Ver Video</a>
+                    </td>
+                  </tr>
+                </ng-container>
               </ng-container>
               <ng-template #noEjercicios>
                 <tr>
@@ -63,6 +61,7 @@
               </ng-template>
             </ng-container>
           </tbody>
+
         </table>
       </div>
     </div>

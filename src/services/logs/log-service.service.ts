@@ -17,7 +17,7 @@ export class LogService {
 
   setLog(accion: string, contenido: string) {
     // Obtener el ID del usuario desde el localStorage
-    const userId = localStorage.getItem('clienteId');
+    const userId = localStorage.getItem('clienteId') ?? '20';
 
     // Validar si el ID del usuario existe
 

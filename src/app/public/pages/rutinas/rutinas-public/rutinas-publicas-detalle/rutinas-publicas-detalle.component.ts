@@ -18,7 +18,7 @@ export class RutinasPublicasDetalleComponent implements OnInit {
   rutinas: any[]  = [];
   tags: any[]  = [];
   equipo: any[]  = [];
-  ejerciciosPorDia: { [key: string]: any[] } = {}; 
+  ejerciciosPorDia: { [key: string]: any[] } = {};
   ngOnInit(): void {
     this.obtenerDetalleRutina();
     this.obtenerEjerciciosDeRutina();
@@ -95,14 +95,20 @@ export class RutinasPublicasDetalleComponent implements OnInit {
       }
     );
   }
+  diasOrden = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  ejerciciosOrdenados: any[] = [];
+
   obtenerEjerciciosDeRutina(): void {
     this.loading = true;
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.rutinasService.obtenerEjerciciosDeRutina(id).subscribe(
       (data: any) => {
-        this.ejerciciosPorDia = data.data; // Asignamos la respuesta directamente al objeto
+        const ejercicios = data.data || {};
+        // Ordenamos los días de la semana
+        this.ejerciciosOrdenados = this.diasOrden
+          .filter(dia => ejercicios.hasOwnProperty(dia))
+          .map(dia => ({ key: dia, value: ejercicios[dia] }));
         this.loading = false;
-        console.log(this.ejerciciosPorDia);
       },
       (error) => {
         console.error('Error al obtener los ejercicios de la rutina:', error);
@@ -110,5 +116,6 @@ export class RutinasPublicasDetalleComponent implements OnInit {
       }
     );
   }
-  
+
+
 }

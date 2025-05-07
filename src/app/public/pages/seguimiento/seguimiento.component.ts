@@ -53,7 +53,51 @@ export class SeguimientoComponent implements OnInit, OnDestroy {
       this.canUpload = true;
     }
   }
+  isDragOver = false;
 
+  triggerFileInput(): void {
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    fileInput?.click();
+  }
+
+  modalImage: any = null;
+  modalImageSrc: string = '';
+  modalImageIndex: number = 0;
+
+  openImageModal(img: any, index: number): void {
+    this.modalImage = img;
+    this.modalImageSrc = this.getImageSrc(img.image);
+    this.modalImageIndex = index;
+
+    // Abre el modal usando Bootstrap
+    const modal = new bootstrap.Modal(document.getElementById('imageModal')!);
+    modal.show();
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver = true;
+  }
+  handleFiles(files: FileList): void {
+    // Aquí haces lo que necesitas con los archivos
+    console.log('[Archivos recibidos]', files);
+    const event = { target: { files } };
+  this.onFilesSelected(event);
+  }
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver = false;
+
+    const files = event.dataTransfer?.files;
+    if (files) {
+      this.handleFiles(files);
+    }
+  }
   ngOnInit(): void {
     console.log('hola');
     this.LOAD_IMAGES();
@@ -111,31 +155,44 @@ export class SeguimientoComponent implements OnInit, OnDestroy {
     });
   }
 
-  onFilesSelected(event: any) {
+  onFilesSelected(event: any): void {
     this.checkUploadAvailability();
-    const files = event.target.files;
+    const files: FileList = event.target.files || event.dataTransfer?.files;
+    if (!files) return;
+
     this.previewImages = [];
     this.selectedFiles = [];
-    this.uploadedImagesDetails = []; // Limpiar detalles de imágenes anteriores
+    this.uploadedImagesDetails = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    let modalOpened = false;
+    const tempPreviews: string[] = [];
+
+    Array.from(files).forEach((file, index) => {
       this.selectedFiles.push(file);
 
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.previewImages.push(e.target.result);
+        tempPreviews.push(e.target.result);
 
-        // Abrir modal para la primera imagen seleccionada
-        if (i === 0) {
-          this.currentImagePreview = e.target.result;
-          this.currentFileIndex = 0;
-          this.openModal();
+        // Solo cuando ya se hayan leído todas las imágenes
+        if (tempPreviews.length === files.length) {
+          this.previewImages = [...tempPreviews];
+
+          // Mostrar la primera imagen y abrir el modal
+          if (!modalOpened) {
+            modalOpened = true;
+            this.currentImagePreview = tempPreviews[0];
+            this.currentFileIndex = 0;
+            this.openModal();
+          }
         }
       };
       reader.readAsDataURL(file);
-    }
+    });
   }
+
+
+
 
   // Método para abrir la modal
   openModal() {
@@ -144,27 +201,25 @@ export class SeguimientoComponent implements OnInit, OnDestroy {
 
   // Método para guardar los detalles de la imagen actual
   saveImageDetails() {
-    // Almacena los detalles de la imagen
-    this.uploadedImagesDetails.push({
-      preview: this.currentImagePreview,
-      peso: this.currentImageDetails.peso,
-      comentarios: this.currentImageDetails.comentarios,
-    });
+    const { peso, comentarios } = this.currentImageDetails;
 
-    // Limpiar los detalles para la siguiente imagen
+    // Agrega los detalles a cada imagen, no solo una por una
+    for (let i = this.currentFileIndex; i < this.previewImages.length; i++) {
+      this.uploadedImagesDetails.push({
+        preview: this.previewImages[i],
+        peso,
+        comentarios
+      });
+    }
+
+    // Limpiar campos
     this.currentImageDetails = { peso: '', comentarios: '' };
 
-    // Avanzar al siguiente archivo si existe
-    this.currentFileIndex++;
-    if (this.currentFileIndex < this.previewImages.length) {
-      this.currentImagePreview = this.previewImages[this.currentFileIndex];
-      this.openModal();
-    } else {
-      // Si no hay más imágenes, llama a saveImagesAsBase64 y cierra la modal
-      this.saveImagesAsBase64();
-      this.commentModal.hide();
-    }
+    // Cierra modal y guarda las imágenes
+    this.commentModal.hide();
+    this.saveImagesAsBase64();
   }
+
   getImageSrc(miniatura: string): string {
     if (miniatura.startsWith('https')) {
       // Si la miniatura comienza con "https", es una URL directa (Firebase)
