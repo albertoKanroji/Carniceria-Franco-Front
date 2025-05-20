@@ -10,7 +10,6 @@
     </div>
   </div>
 </div>
-<!-- Hero End -->
 <ng-template #loader1>
   <div class="text-center" style="margin-top: 10%">
     <div class="spinner-border text-primary" role="status">
@@ -19,75 +18,68 @@
     <p class="mt-2">Cargando Rutinas...</p>
   </div>
 </ng-template>
-<!-- Blog Start -->
 <div class="container-fluid p-5">
   <div class="row g-5">
     <div class="col-lg-8">
-      <!-- Blog Detail Start -->
-      <div
-        class="mb-5 d-flex align-items-start"
-        *ngIf="!loading1; else loader1"
-      >
+      <!-- Imagen y descripción de la rutina -->
+      <div class="mb-5 d-flex flex-column flex-lg-row align-items-center align-items-lg-start text-center text-lg-start"
+           *ngIf="!loading1; else loader1">
+
+        <!-- Imagen principal -->
         <img
-          width="500"
+          class="img-fluid w-100 w-lg-auto"
+          [style.max-width.px]="500"
           style="border-radius: 15px"
-          class="img-fluid"
           [src]="getImageSrc(rutina.imagen)"
-          alt=""
+          alt="Imagen de rutina"
         />
 
-        <div style="margin-left: 15px;">
-          <h1 class="text-uppercase mb-4">{{ rutina.nombre }}</h1>
-          <p style="font-size: 20px">{{ rutina.descripcion }}</p>
+        <!-- Texto -->
+        <div class="mt-3 mt-lg-0 ms-lg-3">
+          <h1 class="text-uppercase mb-3">{{ rutina.nombre }}</h1>
+          <p class="fs-5">{{ rutina.descripcion }}</p>
         </div>
       </div>
 
-      <!-- Blog Detail End -->
-
-      <!-- Comment List Start -->
-      <div class="container-fluid p-5" *ngIf="!loading2; else loader2">
-        <div class="row g-5">
-          <div class="col-lg-4" *ngFor="let rutina of ejercicios">
-            <div class="blog-item">
+      <!-- Listado de ejercicios -->
+      <div class="container-fluid p-0" *ngIf="!loading2; else loader2">
+        <div class="row g-4">
+          <div class="col-12 col-md-6 col-lg-4" *ngFor="let rutina of ejercicios">
+            <div class="blog-item h-100 d-flex flex-column">
               <div class="position-relative overflow-hidden rounded-top">
                 <img
-                  class="img-fluid"
+                  class="img-fluid w-100"
                   [src]="getImageSrc(rutina.miniatura)"
-                  alt=""
+                  alt="Miniatura"
                 />
               </div>
-              <div class="bg-dark d-flex align-items-center rounded-bottom p-3">
+              <div class="bg-dark d-flex align-items-center justify-content-center rounded-bottom p-3">
                 <a
-                  class="h5 text-uppercase text-light"
+                  class="h6 text-uppercase text-light text-center"
                   [href]="'/pages/grupos-musculares/video/' + rutina.id"
-                  >{{ rutina.nombre }}</a
                 >
-                <!-- <a class="btn btn-light btn-sm ms-auto" [href]="'/pages/grupos-musculares/' + rutina.id" >Ver Ejercicios</a> -->
+                  {{ rutina.nombre }}
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Loader -->
       <ng-template #loader2>
-        <div class="text-center" style="margin-top: 5%">
+        <div class="text-center my-5">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
           <p class="mt-2">Cargando Videos</p>
         </div>
       </ng-template>
-      <!-- Comment List End -->
-
-      <!-- Comment Form Start -->
-
-      <!-- Comment Form End -->
     </div>
 
-    <!-- Sidebar Start -->
-    <div class="col-lg-4">
-      <!-- Search Form Start -->
 
-      <!-- Search Form End -->
+    <div class="col-lg-4">
+
       <ng-template #loader>
         <div class="text-center" style="margin-top: 5%">
           <div class="spinner-border text-primary" role="status">
@@ -96,7 +88,6 @@
           <p class="mt-2">Cargando Informacion...</p>
         </div>
       </ng-template>
-      <!-- Category Start -->
       <div class="mb-5">
         <h3 class="text-uppercase mb-4">Otros grupos musculares</h3>
         <div
@@ -113,23 +104,7 @@
         </div>
       </div>
 
-      <!-- Tags Start -->
-      <!-- <div class="mb-5">
-        <h3 class="text-uppercase mb-4">Tags</h3>
-        <div class="d-flex flex-wrap m-n1" *ngIf="!loading; else loader">
-          <a *ngFor="let tag of tags" href="" class="btn btn-dark m-1">{{
-            tag.nombre
-          }}</a>
-        </div>
-      </div>
-      <div class="mb-5">
-        <h3 class="text-uppercase mb-4">Equipo</h3>
-        <div class="d-flex flex-wrap m-n1" *ngIf="!loading; else loader">
-          <a *ngFor="let eq of equipo" href="" class="btn btn-dark m-1">{{
-            eq.nombre
-          }}</a>
-        </div>
-      </div> -->
+
     </div>
   </div>
 </div>
