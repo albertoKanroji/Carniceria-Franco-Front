@@ -12,7 +12,11 @@ export class RutinasPublicasComponent implements OnInit {
   rutinas: Rutina[]  = [];
 
   constructor(private rutinasService: MisRutinasService,private toastr: ToastrService) { }
-
+  getMiniaturaSrc(miniatura: string | null): string {
+    return miniatura
+      ? miniatura
+      : 'https://firebasestorage.googleapis.com/v0/b/infinitytech-15a41.appspot.com/o/Rutinas.png?alt=media&token=154bb3ca-abbb-44b6-8335-5cfb31c0057f';
+  }
   ngOnInit(): void {
     this.obtenerRutinas();
   }

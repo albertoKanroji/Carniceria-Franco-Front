@@ -34,15 +34,12 @@ hasMoreVideos = true;
       return matchesName && matchesGroup;
     });
   }
-  getImageSrc(miniatura: string): string {
-    if (miniatura.startsWith('https')) {
-      // Si la miniatura comienza con "https", es una URL directa (Firebase)
-      return miniatura;
-    } else {
-      // Si no comienza con "https", asumimos que es Base64
-      return 'data:image/jpeg;base64,' + miniatura;
-    }
+  getMiniaturaSrc(miniatura: string | null): string {
+    return miniatura
+      ? miniatura
+      : 'https://firebasestorage.googleapis.com/v0/b/infinitytech-15a41.appspot.com/o/Rutinas.png?alt=media&token=154bb3ca-abbb-44b6-8335-5cfb31c0057f';
   }
+
 
   ngOnInit(): void {
     this.getVideosAll()
