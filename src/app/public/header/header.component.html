@@ -130,8 +130,8 @@
                 </button>
 
                 <!-- Menú de notificaciones -->
-                <ul
-                  class="dropdown-menu p-2 notificaciones-dropdown"
+                <ul style="width: 300px;"
+                  class="dropdown-menu p-2  notificaciones-dropdown"
                   aria-labelledby="notificacionesDropdown"
                 >
                   <li
@@ -139,7 +139,9 @@
                     (click)="mostrarModal(notificacion)"
                     class="dropdown-item"
                   >
-                    <div class="d-flex align-items-start">
+                    <div
+
+                    class="d-flex align-items-start">
                       <img
                         *ngIf="notificacion.logo"
                         [src]="'data:image/png;base64,' + notificacion.logo"
