@@ -1,45 +1,135 @@
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-body">
-          <h2 class="card-title text-center mb-4">Iniciar sesión</h2>
-          <form (ngSubmit)="login()" #loginForm="ngForm">
-            <div class="mb-3">
-              <label for="usuarioEmail" class="form-label"
-                >Correo electrónico:</label
-              >
-              <input
-                type="email"
-                id="usuarioEmail"
-                name="usuarioEmail"
-                class="form-control"
-                [(ngModel)]="usuarioEmail"
-                required
-              />
+<!-- Login Section -->
+<div class="login-container">
+  <div class="login-background">
+    <div class="background-overlay"></div>
+  </div>
+
+  <div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+      <div class="col-lg-5 col-md-7 col-sm-9">
+
+        <!-- Login Card -->
+        <div class="login-card">
+
+          <!-- Header -->
+          <div class="login-header">
+            <div class="brand-logo">
+              <img src="../../../assets/img/logo.jpeg" alt="Carnicería Franco" class="logo-image">
             </div>
-            <div class="mb-3">
-              <label for="usuarioPassword" class="form-label"
-                >Contraseña:</label
-              >
-              <input
-                type="password"
-                id="usuarioPassword"
-                name="usuarioPassword"
-                class="form-control"
-                [(ngModel)]="usuarioPassword"
-                required
-              />
+            <h2 class="login-title">Bienvenido de vuelta</h2>
+            <p class="login-subtitle">Ingresa a tu cuenta de Carnicería Franco</p>
+          </div>
+
+          <!-- Form -->
+          <form (ngSubmit)="login()" #loginForm="ngForm" class="login-form">
+
+            <!-- Email Field -->
+            <div class="form-group">
+              <label for="usuarioEmail" class="form-label">
+                <i class="fas fa-envelope"></i>
+                Correo Electrónico
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="email"
+                  id="usuarioEmail"
+                  name="usuarioEmail"
+                  class="form-control-modern"
+                  placeholder="Ingresa tu email"
+                  [(ngModel)]="usuarioEmail"
+                  required
+                  autocomplete="email"
+                />
+                <div class="input-border"></div>
+              </div>
             </div>
 
+            <!-- Password Field -->
+            <div class="form-group">
+              <label for="usuarioPassword" class="form-label">
+                <i class="fas fa-lock"></i>
+                Contraseña
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="password"
+                  id="usuarioPassword"
+                  name="usuarioPassword"
+                  class="form-control-modern"
+                  placeholder="Ingresa tu contraseña"
+                  [(ngModel)]="usuarioPassword"
+                  required
+                  autocomplete="current-password"
+                />
+                <div class="input-border"></div>
+              </div>
+            </div>
 
-            <button type="submit" class="btn btn-primary btn-block" [disabled]="loading">
-              <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              <span *ngIf="!loading" (click)="login()">Iniciar Sesion</span>
+            <!-- Remember & Forgot -->
+            <div class="form-extras">
+              <div class="remember-me">
+                <input type="checkbox" id="remember" class="checkbox-custom">
+                <label for="remember" class="checkbox-label">Recordarme</label>
+              </div>
+              <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="login-button" [disabled]="loading">
+              <span *ngIf="loading" class="button-spinner">
+                <i class="fas fa-circle-notch fa-spin"></i>
+              </span>
+              <span *ngIf="!loading" class="button-content">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                Iniciar Sesión
+              </span>
             </button>
+
+            <!-- Divider -->
+            <div class="divider">
+              <span class="divider-text">o continúa con</span>
+            </div>
+
+            <!-- Social Login -->
+            <div class="social-login">
+              <button type="button" class="social-btn google-btn">
+                <i class="fab fa-google"></i>
+                Google
+              </button>
+              <button type="button" class="social-btn facebook-btn">
+                <i class="fab fa-facebook-f"></i>
+                Facebook
+              </button>
+            </div>
+
           </form>
 
+          <!-- Footer -->
+          <div class="login-footer">
+            <p class="signup-text">
+              ¿No tienes cuenta?
+              <a routerLink="/pages/create-account" class="signup-link">Regístrate aquí</a>
+            </p>
+          </div>
+
         </div>
+
+        <!-- Features -->
+        <div class="login-features">
+          <div class="feature-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>Seguridad Garantizada</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-truck"></i>
+            <span>Entrega Rápida</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-star"></i>
+            <span>Productos Premium</span>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

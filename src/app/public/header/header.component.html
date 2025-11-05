@@ -1,62 +1,37 @@
 <div class="container-fluid bg-dark px-0">
   <div class="row gx-0">
     <!-- Logo en versión escritorio -->
-    <div class="col-lg-3 bg-dark d-none d-lg-block">
+    <div class="col-lg-3 bg-gradient-dark d-none d-lg-block">
       <a
         href="index.html"
-        class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center"
+        class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center logo-container"
       >
         <img
-          src="https://firebasestorage.googleapis.com/v0/b/infinitytech-15a41.appspot.com/o/Logo-min.png?alt=media&token=0e8916f3-607a-48a0-af25-a60ffe88b5d2"
-          alt="Trainity Logo"
-          class="mr-2"
-          style="height: 80px; width: auto"
+          src="../../../assets/img/logo.jpeg"
+          alt="Carnicería Franco Logo"
+          class="logo-img"
+          style="height: 60px; width: auto"
         />
-        <h1 class="m-0 display-4 text-primary text-uppercase">trainity</h1>
+        <div class="logo-text">
+          <h1 class="m-0 text-primary brand-name">CARNICERÍA</h1>
+          <h2 class="m-0 text-white brand-subtitle">FRANCO</h2>
+        </div>
       </a>
     </div>
 
     <div class="col-lg-9">
-      <!-- Barra superior con contacto y sesión (solo en escritorio) -->
-      <div class="row gx-0 bg-secondary d-none d-lg-flex">
-        <div class="col-lg-7 px-5 text-start">
-          <div class="h-100 d-inline-flex align-items-center py-2 me-4">
-            <i class="fa fa-envelope text-primary me-2"></i>
-            <h6 class="mb-0">berna_zepeda@hotmail.com</h6>
-          </div>
-
-        </div>
-
-        <div class="col-lg-5 px-5 text-end">
-          <div class="d-inline-flex align-items-center py-2">
-            <a
-              *ngIf="isLoggedIn"
-              (click)="logout()"
-              class="btn btn-primary mx-2"
-              >Cerrar sesión</a
-            >
-            <a
-              *ngIf="!isLoggedIn"
-              [routerLink]="['/login']"
-              class="btn btn-primary mx-2"
-              >Iniciar sesión</a
-            >
-          </div>
-        </div>
-      </div>
-
       <!-- Navbar principal -->
       <nav
-        class="navbar navbar-expand-lg bg-dark navbar-dark p-3 p-lg-0 px-lg-5"
+        class="navbar navbar-expand-lg bg-dark navbar-dark p-3 p-lg-0 px-lg-5 modern-navbar"
       >
-        <a href="index.html" class="navbar-brand d-block d-lg-none">
-          <h1 class="m-0 display-4 text-primary text-uppercase">
-            Trainity
+        <a href="index.html" class="navbar-brand d-block d-lg-none mobile-brand">
+          <h1 class="m-0 display-6 text-primary text-uppercase">
+            Carnicería Franco
           </h1>
         </a>
         <button
           type="button"
-          class="navbar-toggler"
+          class="navbar-toggler modern-toggler"
           data-bs-toggle="collapse"
           data-bs-target="#navbarCollapse"
         >
@@ -67,110 +42,101 @@
           class="collapse navbar-collapse justify-content-between"
           id="navbarCollapse"
         >
-          <div class="navbar-nav mr-auto py-0">
-            <a href="index.html" class="nav-item nav-link">Inicio</a>
-            <a routerLink="/pages/videos-all" class="nav-item nav-link"
-              >Ejercicios</a
-            >
-            <a routerLink="/pages/grupos-musculares" class="nav-item nav-link"
-              >Grupos Musculares</a
-            >
+          <div class="navbar-nav mr-auto py-0 d-flex align-items-center w-100">
+            <a href="index.html" class="nav-item nav-link modern-nav-link">
+              <i class="fas fa-home me-2"></i>Inicio
+            </a>
+            <a routerLink="/pages/productos" class="nav-item nav-link modern-nav-link">
+              <i class="fas fa-box me-2"></i>Productos
+            </a>
+            <a routerLink="/pages/categorias" class="nav-item nav-link modern-nav-link">
+              <i class="fas fa-list me-2"></i>Categorías
+            </a>
+            <a routerLink="/contact" class="nav-item nav-link modern-nav-link">
+              <i class="fas fa-envelope me-2"></i>Contáctanos
+            </a>
 
-            <div class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
-                >Información</a
+            <!-- Botón de Mi Carrito -->
+            <div class="nav-item dropdown ms-auto me-3">
+              <button
+                class="btn btn-cart position-relative"
+                type="button"
+                id="carritoDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
-              <div class="dropdown-menu rounded-0 m-0">
-                <a routerLink="/pages/lesiones" class="dropdown-item"
-                  >Lesiones</a
+                <i class="fas fa-shopping-cart me-2"></i>
+                <span class="d-none d-lg-inline">Mi Carrito</span>
+                <span
+                  *ngIf="notificacionesOriginales.length > 0"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge"
                 >
-                <a routerLink="/pages/guia-recuperacion" class="dropdown-item"
-                  >Guía de recuperación</a
-                >
-              </div>
-            </div>
+                  {{ notificacionesOriginales.length }}
+                </span>
+              </button>
 
-            <div class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
-                >Rutinas</a
-              >
-              <div class="dropdown-menu rounded-0 m-0">
-                <a routerLink="/pages/rutinas-publicas" class="dropdown-item"
-                  >Para todos</a
+              <!-- Menú del carrito -->
+              <ul class="dropdown-menu carrito-dropdown" aria-labelledby="carritoDropdown">
+                <li class="dropdown-header">
+                  <i class="fas fa-shopping-cart me-2"></i>
+                  Mi Carrito de Compras
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li
+                  *ngFor="let notificacion of notificacionesOriginales"
+                  (click)="mostrarModal(notificacion)"
+                  class="dropdown-item cart-item"
                 >
-                <a routerLink="/pages/rutinas-users" class="dropdown-item"
-                  >Mis Rutinas</a
-                >
-              </div>
-            </div>
-
-            <a routerLink="/pages/seguimiento" class="nav-item nav-link"
-              >Seguimiento</a
-            >
-            <a routerLink="/contact" class="nav-item nav-link">Contáctanos</a>
-            <!-- Botón de Notificaciones -->
-            <div
-              class="d-flex align-items-center justify-content-end position-relative w-100 px-3 mt-3 mt-lg-0"
-            >
-              <div class="dropdown">
-                <button
-                  class="btn btn-secondary position-relative"
-                  type="button"
-                  id="notificacionesDropdown"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  <i class="fa fa-bell"></i>
-                  <span
-                    *ngIf="notificacionesOriginales.length > 0"
-                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                  >
-                    {{ notificacionesOriginales.length }}
-                  </span>
-                </button>
-
-                <!-- Menú de notificaciones -->
-                <ul style="width: 300px;"
-                  class="dropdown-menu p-2  notificaciones-dropdown"
-                  aria-labelledby="notificacionesDropdown"
-                >
-                  <li
-                    *ngFor="let notificacion of notificacionesOriginales"
-                    (click)="mostrarModal(notificacion)"
-                    class="dropdown-item"
-                  >
-                    <div
-
-                    class="d-flex align-items-start">
-                      <img
-                        *ngIf="notificacion.logo"
-                        [src]="'data:image/png;base64,' + notificacion.logo"
-                        class="me-2 flex-shrink-0 rounded-circle"
-                        width="40"
-                        height="40"
-                        alt="Logo"
-                      />
-                      <div class="text-wrap" style="max-width: 230px">
-                        <strong class="d-block">{{
-                          notificacion.nombre
-                        }}</strong>
-                        <small class="text-muted d-block">{{
-                          formatFecha(notificacion.fecha_envio)
-                        }}</small>
-                        <p class="mb-0 text-break">
-                          {{ notificacion.descripcion }}
-                        </p>
-                      </div>
+                  <div class="d-flex align-items-start">
+                    <img
+                      *ngIf="notificacion.logo"
+                      [src]="'data:image/png;base64,' + notificacion.logo"
+                      class="me-3 flex-shrink-0 rounded product-img"
+                      width="50"
+                      height="50"
+                      alt="Producto"
+                    />
+                    <div class="text-wrap flex-grow-1">
+                      <strong class="d-block product-name">{{
+                        notificacion.nombre
+                      }}</strong>
+                      <small class="text-muted d-block">{{
+                        formatFecha(notificacion.fecha_envio)
+                      }}</small>
+                      <p class="mb-0 text-break product-description">
+                        {{ notificacion.descripcion }}
+                      </p>
                     </div>
-                  </li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li class="text-center">
-                    <a href="#" class="btn btn-link btn-sm">Ver todas</a>
-                  </li>
-                </ul>
-              </div>
+                  </div>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li class="text-center p-2">
+                  <a href="#" class="btn btn-primary btn-sm w-100">
+                    <i class="fas fa-eye me-2"></i>Ver carrito completo
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Botón de sesión al mismo nivel -->
+            <div class="nav-item">
+              <a
+                *ngIf="isLoggedIn"
+                (click)="logout()"
+                class="btn btn-login"
+              >
+                <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
+              </a>
+              <a
+                *ngIf="!isLoggedIn"
+                [routerLink]="['/login']"
+                class="btn btn-login"
+              >
+                <i class="fas fa-sign-in-alt me-2"></i>Iniciar sesión
+              </a>
             </div>
           </div>
+
           <div class="d-flex align-items-center">
             <!-- Mostrar la imagen y el nombre del usuario solo si está logueado -->
             <div
@@ -180,7 +146,7 @@
               <a
                 *ngIf="userImage"
                 [routerLink]="['/pages/profile']"
-                class="position-relative"
+                class="position-relative user-avatar"
               >
                 <img
                   [src]="userImage"
@@ -196,22 +162,6 @@
               </a>
               <div class="user-name mt-2">{{ userName }}</div>
             </div>
-          </div>
-
-          <!-- Botón de sesión en versión móvil -->
-          <div class="d-flex align-items-center d-lg-none">
-            <a
-              *ngIf="isLoggedIn"
-              (click)="logout()"
-              class="btn btn-primary mx-2"
-              >Cerrar sesión</a
-            >
-            <a
-              *ngIf="!isLoggedIn"
-              [routerLink]="['/login']"
-              class="btn btn-primary mx-2"
-              >Iniciar sesión</a
-            >
           </div>
         </div>
       </nav>

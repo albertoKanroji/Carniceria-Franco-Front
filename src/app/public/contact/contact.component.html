@@ -1,121 +1,228 @@
-<!-- Hero Start -->
-<div class="container-fluid bg-primary p-5 bg-hero mb-5">
-  <div class="row py-5">
-    <div class="col-12 text-center">
-      <h1 class="display-2 text-uppercase text-white mb-md-4">Contact</h1>
-      <a href="" class="btn btn-primary py-md-3 px-md-5 me-3">Home</a>
-      <a href="" class="btn btn-light py-md-3 px-md-5">Contact</a>
+
+<!-- Contact Info Cards -->
+<div class="contact-info-section">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- Ubicación -->
+      <div class="col-lg-4 col-md-6">
+        <div class="contact-card">
+          <div class="contact-icon">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <h5 class="contact-title">Nuestra Ubicación</h5>
+          <p class="contact-description">
+            Av. Melchor Ocampo 1780<br>
+            Emiliano Zapata<br>
+            Lázaro Cárdenas, Mich.
+          </p>
+          <button class="contact-btn">
+            <i class="fas fa-route"></i>
+            Ver en Mapa
+          </button>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="col-lg-4 col-md-6">
+        <div class="contact-card">
+          <div class="contact-icon">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <h5 class="contact-title">Envíanos un Email</h5>
+          <p class="contact-description">
+            Consultas, pedidos especiales<br>
+            o cualquier información que necesites
+          </p>
+          <a href="mailto:berna_zepeda@hotmail.com" class="contact-btn">
+            <i class="fas fa-paper-plane"></i>
+            berna_zepeda@hotmail.com
+          </a>
+        </div>
+      </div>
+
+      <!-- Teléfono -->
+      <div class="col-lg-4 col-md-6">
+        <div class="contact-card">
+          <div class="contact-icon">
+            <i class="fas fa-phone"></i>
+          </div>
+          <h5 class="contact-title">Llámanos</h5>
+          <p class="contact-description">
+            Horarios de atención:<br>
+            Lun - Sab: 8:00 AM - 8:00 PM<br>
+            Dom: 9:00 AM - 6:00 PM
+          </p>
+          <a href="tel:+527531234567" class="contact-btn">
+            <i class="fas fa-phone"></i>
+            +52 753 123 4567
+          </a>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- Contact Start -->
-<div class="container-fluid p-5">
-  <div class="mb-5 text-center">
-    <h5 class="text-primary text-uppercase">CONTÁCTENOS</h5>
-    <h1 class="display-3 text-uppercase mb-0">PONERSE EN CONTACTO</h1>
-  </div>
-  <div class="row g-5 mb-5">
-    <div class="col-lg-4">
-      <div
-        class="d-flex flex-column align-items-center bg-dark rounded text-center py-5 px-3"
-      >
-        <div
-          class="bg-primary rounded-circle d-flex align-items-center justify-content-center mb-3"
-          style="width: 60px; height: 60px"
-        >
-          <i class="fa fa-map-marker-alt fs-4 text-white"></i>
+<!-- Contact Form & Map -->
+<div class="contact-form-section">
+  <div class="container">
+    <div class="row g-0 contact-wrapper">
+
+      <!-- Formulario -->
+      <div class="col-lg-6">
+        <div class="form-container">
+          <div class="form-header">
+            <h3 class="form-title">Envíanos un Mensaje</h3>
+            <p class="form-subtitle">Te responderemos lo antes posible</p>
+          </div>
+
+          <form class="contact-form">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Nombre Completo</label>
+                  <input
+                    type="text"
+                    class="form-control-custom"
+                    placeholder="Ingresa tu nombre"
+                    required>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control-custom"
+                    placeholder="tu@email.com"
+                    required>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="form-group">
+                  <label class="form-label">Teléfono (Opcional)</label>
+                  <input
+                    type="tel"
+                    class="form-control-custom"
+                    placeholder="+52 753 123 4567">
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="form-group">
+                  <label class="form-label">Asunto</label>
+                  <select class="form-control-custom">
+                    <option value="">Selecciona un tema</option>
+                    <option value="pedido">Hacer un Pedido</option>
+                    <option value="info">Información de Productos</option>
+                    <option value="precios">Consulta de Precios</option>
+                    <option value="delivery">Servicio de Entrega</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="form-group">
+                  <label class="form-label">Mensaje</label>
+                  <textarea
+                    class="form-control-custom textarea-custom"
+                    rows="5"
+                    placeholder="Cuéntanos en qué podemos ayudarte..."
+                    required></textarea>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <button type="submit" class="submit-btn">
+                  <i class="fas fa-paper-plane me-2"></i>
+                  Enviar Mensaje
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
-        <h5 class="text-uppercase text-primary">Visitanos</h5>
-        <p class="text-secondary mb-0">Avenida, Melchor Ocampo 1780, Emiliano Zapata, 60950 Cdad. Lázaro Cárdenas, Mich.</p>
       </div>
-    </div>
-    <div class="col-lg-4">
-      <div
-        class="d-flex flex-column align-items-center bg-dark rounded text-center py-5 px-3"
-      >
-        <div
-          class="bg-primary rounded-circle d-flex align-items-center justify-content-center mb-3"
-          style="width: 60px; height: 60px"
-        >
-          <i class="fa fa-envelope fs-4 text-white"></i>
-        </div>
-        <h5 class="text-uppercase text-primary">Envianos un email</h5>
-        <p class="text-secondary mb-0">berna_zepeda@hotmail.com</p>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div
-        class="d-flex flex-column align-items-center bg-dark rounded text-center py-5 px-3"
-      >
-        <div
-          class="bg-primary rounded-circle d-flex align-items-center justify-content-center mb-3"
-          style="width: 60px; height: 60px"
-        >
-          <i class="fa fa-phone fs-4 text-white"></i>
-        </div>
-        <h5 class="text-uppercase text-primary">Llamanos</h5>
-        <p class="text-secondary mb-0"></p>
-      </div>
-    </div>
-  </div>
-  <div class="row g-0">
-    <div class="col-lg-6">
-      <div class="bg-dark p-5">
-        <form>
-          <div class="row g-3">
-            <div class="col-6">
-              <input
-                type="text"
-                class="form-control bg-light border-0 px-4"
-                placeholder="Tu Nombre"
-                style="height: 55px"
-              />
-            </div>
-            <div class="col-6">
-              <input
-                type="email"
-                class="form-control bg-light border-0 px-4"
-                placeholder="Tu Email"
-                style="height: 55px"
-              />
-            </div>
-            <div class="col-12">
-              <input
-                type="text"
-                class="form-control bg-light border-0 px-4"
-                placeholder="Asunto"
-                style="height: 55px"
-              />
-            </div>
-            <div class="col-12">
-              <textarea
-                class="form-control bg-light border-0 px-4 py-3"
-                rows="4"
-                placeholder="Mensaje"
-              ></textarea>
-            </div>
-            <div class="col-12">
-              <button class="btn btn-primary w-100 py-3" type="submit">
-                Enviar Mensaje
-              </button>
+
+      <!-- Mapa -->
+      <div class="col-lg-6">
+        <div class="map-container">
+          <div class="map-overlay">
+            <div class="map-info">
+              <h4 class="map-title">CARNICERÍA FRANCO</h4>
+              <p class="map-address">
+                <i class="fas fa-map-marker-alt"></i>
+                Av. Melchor Ocampo 1780, Emiliano Zapata
+              </p>
+              <div class="map-features">
+                <span class="map-feature">
+                  <i class="fas fa-car"></i>
+                  Estacionamiento
+                </span>
+                <span class="map-feature">
+                  <i class="fas fa-wheelchair"></i>
+                  Acceso para todos
+                </span>
+              </div>
             </div>
           </div>
-        </form>
+          <iframe
+            class="map-iframe"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1341.7713169801837!2d-102.23294703427386!3d17.973972805862935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x84315d06146cdce3%3A0x995c19fc6bf7f16a!2sINFINITY%20GYM!5e0!3m2!1ses-419!2smx!4v1715230564822!5m2!1ses-419!2smx"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
       </div>
-    </div>
-    <div class="col-lg-6">
-      <iframe
-        class="w-100"
-        src="
-        https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1341.7713169801837!2d-102.23294703427386!3d17.973972805862935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x84315d06146cdce3%3A0x995c19fc6bf7f16a!2sINFINITY%20GYM!5e0!3m2!1ses-419!2smx!4v1715230564822!5m2!1ses-419!2smx        "
-        frameborder="0"
-        style="height: 457px; border: 0"
-        allowfullscreen=""
-        aria-hidden="false"
-        tabindex="0"
-      ></iframe>
+
     </div>
   </div>
 </div>
-<!-- Contact End -->
+
+<!-- Features Section -->
+<div class="contact-features">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="feature-item">
+          <div class="feature-icon-small">
+            <i class="fas fa-clock"></i>
+          </div>
+          <h6 class="feature-title-small">Respuesta Rápida</h6>
+          <p class="feature-text">Contestamos en menos de 2 horas</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="feature-item">
+          <div class="feature-icon-small">
+            <i class="fas fa-truck"></i>
+          </div>
+          <h6 class="feature-title-small">Delivery Disponible</h6>
+          <p class="feature-text">Llevamos tus productos a casa</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="feature-item">
+          <div class="feature-icon-small">
+            <i class="fas fa-users"></i>
+          </div>
+          <h6 class="feature-title-small">Atención Personalizada</h6>
+          <p class="feature-text">Servicio adaptado a tus necesidades</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="feature-item">
+          <div class="feature-icon-small">
+            <i class="fas fa-star"></i>
+          </div>
+          <h6 class="feature-title-small">Calidad Garantizada</h6>
+          <p class="feature-text">Productos frescos y certificados</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
