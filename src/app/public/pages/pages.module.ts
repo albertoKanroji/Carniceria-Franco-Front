@@ -16,6 +16,9 @@ import { VideosAllComponent } from './videos-all/videos-all.component';
 import { VideosSelectComponent } from './videos-select/videos-select.component';
 import { SeguimientoComponent } from './seguimiento/seguimiento.component';
 import { GuiaRecuperacionComponent } from './guia-recuperacion/guia-recuperacion.component';
+import { ProductosComponent } from './productos/productos.component';
+import { CategoriasComponent } from './categorias/categorias.component';
+import { CarritoComponent } from './carrito/carrito.component';
 
 
 @NgModule({
@@ -33,6 +36,9 @@ import { GuiaRecuperacionComponent } from './guia-recuperacion/guia-recuperacion
    VideosSelectComponent,
    SeguimientoComponent,
    GuiaRecuperacionComponent,
+   ProductosComponent,
+   CategoriasComponent,
+   CarritoComponent,
 
   ],
   imports: [

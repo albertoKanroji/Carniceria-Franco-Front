@@ -1,0 +1,154 @@
+<!-- Hero Section -->
+<div class="hero-section">
+  <div class="container">
+    <div class="hero-content text-center">
+      <h1 class="hero-title">NUESTROS PRODUCTOS</h1>
+      <p class="hero-description">
+        Explora nuestra selección premium de carnes frescas y productos de alta calidad
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Filtros y Búsqueda -->
+<div class="filters-section">
+  <div class="container">
+    <!-- Barra de búsqueda -->
+    <div class="search-container mb-4">
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar productos..."
+          [(ngModel)]="busqueda"
+          (keyup)="onBusquedaChange()"
+          (search)="onBusquedaChange()">
+      </div>
+    </div>
+
+    <!-- Filtros de categoría -->
+    <div class="filters-container">
+      <h3 class="filters-title">Filtrar por Categoría</h3>
+      <div class="category-filters">
+        <button
+          class="filter-btn"
+          [class.active]="categoriaSeleccionada === null"
+          (click)="filtrarPorCategoria(null)">
+          Todos
+        </button>
+        <button
+          *ngFor="let categoria of categorias"
+          class="filter-btn"
+          [class.active]="categoriaSeleccionada === categoria.id"
+          (click)="filtrarPorCategoria(categoria.id)">
+          {{ categoria.nombre }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Contador de resultados -->
+    <div class="results-count text-center mt-4">
+      <p class="text-muted">
+        Mostrando <strong>{{ productosFiltrados.length }}</strong> producto(s)
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="cargando" class="loading-section">
+  <div class="container text-center py-5">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3" style="color: #59514F;">Cargando productos...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !cargando" class="error-section">
+  <div class="container text-center py-5">
+    <i class="fas fa-exclamation-triangle fa-4x mb-3" style="color: #D9B384;"></i>
+    <h3 style="color: #59514F;">{{ error }}</h3>
+    <button class="btn btn-primary mt-3" (click)="cargarProductos()">
+      <i class="fas fa-redo me-2"></i>Reintentar
+    </button>
+  </div>
+</div>
+
+<!-- Productos Grid -->
+<div class="products-section" *ngIf="!cargando && !error">
+  <div class="container">
+    <!-- Mensaje cuando no hay productos -->
+    <div *ngIf="productosFiltrados.length === 0" class="no-results text-center py-5">
+      <i class="fas fa-box-open fa-5x mb-3 text-muted"></i>
+      <h3>No se encontraron productos</h3>
+      <p class="text-muted">Intenta con otra búsqueda o categoría</p>
+    </div>
+
+    <!-- Grid de productos -->
+    <div class="row g-4" *ngIf="productosFiltrados.length > 0">
+      <div class="col-lg-3 col-md-4 col-sm-6" *ngFor="let producto of productosFiltrados">
+        <div class="product-card">
+          <!-- Badge de oferta -->
+          <div class="product-badge" *ngIf="producto.en_oferta">
+            <span class="badge-oferta">OFERTA</span>
+          </div>
+
+          <!-- Badge de stock -->
+          <div class="product-stock-badge" *ngIf="!tieneStock(producto)">
+            <span class="badge-agotado">AGOTADO</span>
+          </div>
+
+          <!-- Imagen del producto -->
+          <div class="product-image">
+            <img [src]="getImagenUrl(producto.imagen)" [alt]="producto.nombre" class="img-fluid">
+            <div class="product-overlay">
+              <button class="btn-quick-view" (click)="verDetalle(producto)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Información del producto -->
+          <div class="product-info">
+            <div class="product-category">{{ producto.category?.nombre || 'Sin categoría' }}</div>
+            <h4 class="product-name">{{ producto.nombre }}</h4>
+            <p class="product-description">{{ producto.descripcion || 'Producto de alta calidad' }}</p>
+
+            <!-- Unidad de venta -->
+            <div class="product-weight">
+              <i class="fas fa-weight"></i>
+              <span>Por {{ producto.unidad_venta }}</span>
+            </div>
+
+            <!-- Stock disponible -->
+            <div class="product-rating" *ngIf="tieneStock(producto)">
+              <i class="fas fa-box text-success"></i>
+              <span class="rating-text">Stock: {{ producto.stock }} {{ producto.unidad_venta }}(s)</span>
+            </div>
+
+            <!-- Precios -->
+            <div class="product-pricing">
+              <span class="price-current">${{ getPrecioFinal(producto) }}</span>
+              <span class="price-original" *ngIf="producto.en_oferta && producto.precio_oferta">
+                ${{ producto.precio }}
+              </span>
+            </div>
+
+            <!-- Botón agregar al carrito -->
+            <button
+              class="btn-add-cart"
+              [disabled]="!tieneStock(producto)"
+              (click)="agregarAlCarrito(producto)">
+              <i class="fas fa-shopping-cart me-2"></i>
+              <span *ngIf="tieneStock(producto)">Agregar al Carrito</span>
+              <span *ngIf="!tieneStock(producto)">No Disponible</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

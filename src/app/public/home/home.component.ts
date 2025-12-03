@@ -1,18 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-
-interface Producto {
-  id: number;
-  nombre: string;
-  precio: number;
-  precioOriginal?: number;
-  imagen: string;
-  categoria: string;
-  descripcion: string;
-  enOferta: boolean;
-  stock: boolean;
-  peso: string;
-  calificacion: number;
-}
+import { Router } from '@angular/router';
+import { ProductosService, Producto } from 'src/services/productos/productos.service';
+import { CategoriasService, Categoria } from 'src/services/categorias/categorias.service';
+import { CarritoService } from 'src/services/carrito/carrito.service';
+import { environment } from 'src/environments/environment';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-home',
@@ -21,128 +13,112 @@ interface Producto {
 })
 export class HomeComponent implements OnInit {
 
-  productos: Producto[] = [
-    {
-      id: 1,
-      nombre: "Carne de Res Premium",
-      precio: 45.90,
-      precioOriginal: 52.00,
-      imagen: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400",
-      categoria: "Res",
-      descripcion: "Corte premium de carne de res, ideal para asados y parrillas",
-      enOferta: true,
-      stock: true,
-      peso: "1kg",
-      calificacion: 5
-    },
-    {
-      id: 2,
-      nombre: "Pollo Entero Fresco",
-      precio: 28.50,
-      imagen: "https://images.unsplash.com/photo-1448907503123-67254d59ca4f?w=400",
-      categoria: "Pollo",
-      descripcion: "Pollo entero fresco de granja, perfecto para el horno",
-      enOferta: false,
-      stock: true,
-      peso: "1.5kg",
-      calificacion: 4
-    },
-    {
-      id: 3,
-      nombre: "Chuletas de Cerdo",
-      precio: 38.75,
-      precioOriginal: 42.00,
-      imagen: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400",
-      categoria: "Cerdo",
-      descripcion: "Chuletas de cerdo jugosas y tiernas, marinadas",
-      enOferta: true,
-      stock: true,
-      peso: "800g",
-      calificacion: 5
-    },
-    {
-      id: 4,
-      nombre: "Filete de Pescado",
-      precio: 55.25,
-      imagen: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=400",
-      categoria: "Pescado",
-      descripcion: "Filete fresco de pescado del día, alta calidad",
-      enOferta: false,
-      stock: true,
-      peso: "500g",
-      calificacion: 4
-    },
-    {
-      id: 5,
-      nombre: "Carne Molida Extra",
-      precio: 32.90,
-      imagen: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400",
-      categoria: "Res",
-      descripcion: "Carne molida de res extra magra, ideal para hamburguesas",
-      enOferta: false,
-      stock: true,
-      peso: "1kg",
-      calificacion: 4
-    },
-    {
-      id: 6,
-      nombre: "Costillas BBQ",
-      precio: 48.60,
-      precioOriginal: 54.00,
-      imagen: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400",
-      categoria: "Cerdo",
-      descripcion: "Costillas de cerdo especiales para barbacoa",
-      enOferta: true,
-      stock: false,
-      peso: "1.2kg",
-      calificacion: 5
-    },
-    {
-      id: 7,
-      nombre: "Pechuga de Pollo",
-      precio: 35.40,
-      imagen: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400",
-      categoria: "Pollo",
-      descripcion: "Pechuga de pollo sin hueso, ideal para dietas saludables",
-      enOferta: false,
-      stock: true,
-      peso: "600g",
-      calificacion: 4
-    },
-    {
-      id: 8,
-      nombre: "Salmón Fresco",
-      precio: 75.80,
-      imagen: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400",
-      categoria: "Pescado",
-      descripcion: "Salmón fresco del Atlántico, rico en omega 3",
-      enOferta: false,
-      stock: true,
-      peso: "400g",
-      calificacion: 5
-    }
-  ];
+  productos: Producto[] = [];
+  productosFiltrados: Producto[] = [];
+  categorias: Categoria[] = [];
+  categoriaSeleccionada: number | null = null;
+  loading = false;
+  loadingCategorias = false;
 
-  constructor() { }
+  constructor(
+    private productosService: ProductosService,
+    private categoriasService: CategoriasService,
+    private carritoService: CarritoService,
+    private toastr: ToastrService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
+    this.cargarCategorias();
+    this.cargarProductos();
+  }
+
+  cargarCategorias(): void {
+    this.loadingCategorias = true;
+    this.categoriasService.getCategorias().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.categorias = Array.isArray(response.data) ? response.data : [response.data];
+        }
+        this.loadingCategorias = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar categorías:', error);
+        this.loadingCategorias = false;
+      }
+    });
+  }
+
+  cargarProductos(categoriaId?: number): void {
+    this.loading = true;
+
+    const observable = categoriaId
+      ? this.categoriasService.getProductosCategoria(categoriaId)
+      : this.productosService.getProductos();
+
+    observable.subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.productos = Array.isArray(response.data) ? response.data : [response.data];
+          this.productosFiltrados = [...this.productos];
+        }
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar productos:', error);
+        this.toastr.error('Error al cargar productos', 'Error');
+        this.loading = false;
+      }
+    });
+  }
+
+  filtrarPorCategoria(categoriaId: number | null): void {
+    this.categoriaSeleccionada = categoriaId;
+    if (categoriaId === null) {
+      this.cargarProductos();
+    } else {
+      this.cargarProductos(categoriaId);
+    }
   }
 
   agregarAlCarrito(producto: Producto): void {
-    console.log('Producto agregado al carrito:', producto);
-    // Aquí implementarías la lógica para agregar al carrito
+    if (producto.stock > 0) {
+      this.carritoService.agregarProducto(producto, 1);
+      this.toastr.success(`${producto.nombre} agregado al carrito`, 'Producto Agregado');
+    } else {
+      this.toastr.warning('Producto sin stock', 'No Disponible');
+    }
   }
 
   verDetalle(producto: Producto): void {
-    console.log('Ver detalle del producto:', producto);
-    // Aquí implementarías la navegación al detalle del producto
+    this.router.navigate(['/pages/productos']);
   }
 
-  generarEstrellas(calificacion: number): string[] {
+  verProductos(): void {
+    this.router.navigate(['/pages/productos']);
+  }
+
+  getImagenProducto(imagen: string | null): string {
+    if (!imagen) {
+      return 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400';
+    }
+    if (imagen.startsWith('http')) {
+      return imagen;
+    }
+    return `${environment.apiUrl.replace('/api/v1', '')}/${imagen}`;
+  }
+
+  generarEstrellas(producto: Producto): string[] {
+    // Generar calificación aleatoria entre 4 y 5 basada en el ID del producto
+    const calificacion = producto.id % 2 === 0 ? 5 : 4;
     const estrellas = [];
     for (let i = 1; i <= 5; i++) {
       estrellas.push(i <= calificacion ? 'fas fa-star' : 'far fa-star');
     }
     return estrellas;
+  }
+
+  getCalificacion(producto: Producto): number {
+    return producto.id % 2 === 0 ? 5 : 4;
   }
 }

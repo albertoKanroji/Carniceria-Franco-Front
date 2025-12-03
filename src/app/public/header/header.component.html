@@ -43,16 +43,16 @@
           id="navbarCollapse"
         >
           <div class="navbar-nav mr-auto py-0 d-flex align-items-center w-100">
-            <a href="index.html" class="nav-item nav-link modern-nav-link">
+            <a routerLink="/" class="nav-item nav-link modern-nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
               <i class="fas fa-home me-2"></i>Inicio
             </a>
-            <a routerLink="/pages/productos" class="nav-item nav-link modern-nav-link">
+            <a routerLink="/pages/productos" class="nav-item nav-link modern-nav-link" routerLinkActive="active">
               <i class="fas fa-box me-2"></i>Productos
             </a>
-            <a routerLink="/pages/categorias" class="nav-item nav-link modern-nav-link">
+            <a routerLink="/pages/categorias" class="nav-item nav-link modern-nav-link" routerLinkActive="active">
               <i class="fas fa-list me-2"></i>Categorías
             </a>
-            <a routerLink="/contact" class="nav-item nav-link modern-nav-link">
+            <a routerLink="/contact" class="nav-item nav-link modern-nav-link" routerLinkActive="active">
               <i class="fas fa-envelope me-2"></i>Contáctanos
             </a>
 
@@ -68,10 +68,10 @@
                 <i class="fas fa-shopping-cart me-2"></i>
                 <span class="d-none d-lg-inline">Mi Carrito</span>
                 <span
-                  *ngIf="notificacionesOriginales.length > 0"
+                  *ngIf="cantidadCarrito > 0"
                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge"
                 >
-                  {{ notificacionesOriginales.length }}
+                  {{ cantidadCarrito }}
                 </span>
               </button>
 
@@ -82,38 +82,51 @@
                   Mi Carrito de Compras
                 </li>
                 <li><hr class="dropdown-divider" /></li>
+
+                <!-- Items del carrito -->
+                <li *ngIf="itemsCarrito.length === 0" class="text-center py-3">
+                  <i class="fas fa-shopping-basket fa-2x text-muted mb-2"></i>
+                  <p class="text-muted mb-0">Tu carrito está vacío</p>
+                </li>
+
                 <li
-                  *ngFor="let notificacion of notificacionesOriginales"
-                  (click)="mostrarModal(notificacion)"
+                  *ngFor="let item of itemsCarrito"
                   class="dropdown-item cart-item"
                 >
-                  <div class="d-flex align-items-start">
+                  <div class="d-flex align-items-start position-relative">
+                    <button
+                      class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                      style="padding: 2px 6px; font-size: 0.7rem;"
+                      (click)="eliminarDelCarrito(item.producto.id); $event.stopPropagation()">
+                      <i class="fas fa-times"></i>
+                    </button>
                     <img
-                      *ngIf="notificacion.logo"
-                      [src]="'data:image/png;base64,' + notificacion.logo"
+                      [src]="getImagenProducto(item.producto.imagen)"
                       class="me-3 flex-shrink-0 rounded product-img"
                       width="50"
                       height="50"
                       alt="Producto"
+                      style="object-fit: cover;"
                     />
                     <div class="text-wrap flex-grow-1">
-                      <strong class="d-block product-name">{{
-                        notificacion.nombre
-                      }}</strong>
-                      <small class="text-muted d-block">{{
-                        formatFecha(notificacion.fecha_envio)
-                      }}</small>
-                      <p class="mb-0 text-break product-description">
-                        {{ notificacion.descripcion }}
+                      <strong class="d-block product-name">{{ item.producto.nombre }}</strong>
+                      <small class="text-muted d-block">
+                        Cantidad: {{ item.cantidad }} {{ item.producto.unidad_venta }}(s)
+                      </small>
+                      <p class="mb-0 text-break" style="color: #D9BB84; font-weight: 600;">
+                        ${{ item.subtotal.toFixed(2) }}
                       </p>
                     </div>
                   </div>
                 </li>
-                <li><hr class="dropdown-divider" /></li>
-                <li class="text-center p-2">
-                  <a href="#" class="btn btn-primary btn-sm w-100">
+
+                <li *ngIf="itemsCarrito.length > 0"><hr class="dropdown-divider" /></li>
+                <li *ngIf="itemsCarrito.length > 0" class="text-center p-2">
+                  <button
+                    class="btn btn-primary btn-sm w-100"
+                    (click)="verCarritoCompleto()">
                     <i class="fas fa-eye me-2"></i>Ver carrito completo
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>

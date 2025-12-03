@@ -10,7 +10,10 @@
             Descubre nuestra selección premium de carnes frescas,
             directamente de productores locales a tu mesa.
           </p>
-          <button class="btn-hero">Ver Productos</button>
+          <button class="btn-hero" (click)="verProductos()">
+            <i class="fas fa-shopping-basket me-2"></i>
+            Ver Productos
+          </button>
         </div>
       </div>
       <div class="col-lg-6">
@@ -28,12 +31,23 @@
   <div class="container">
     <div class="filters-container">
       <h3 class="filters-title">Categorías</h3>
-      <div class="category-filters">
-        <button class="filter-btn active">Todos</button>
-        <button class="filter-btn">Res</button>
-        <button class="filter-btn">Pollo</button>
-        <button class="filter-btn">Cerdo</button>
-        <button class="filter-btn">Pescado</button>
+      <div class="category-filters" *ngIf="!loadingCategorias">
+        <button 
+          class="filter-btn" 
+          [class.active]="categoriaSeleccionada === null"
+          (click)="filtrarPorCategoria(null)">
+          Todos
+        </button>
+        <button 
+          *ngFor="let categoria of categorias"
+          class="filter-btn" 
+          [class.active]="categoriaSeleccionada === categoria.id"
+          (click)="filtrarPorCategoria(categoria.id)">
+          {{ categoria.nombre }}
+        </button>
+      </div>
+      <div class="text-center py-3" *ngIf="loadingCategorias">
+        <i class="fas fa-spinner fa-spin fa-2x" style="color: #D9BB84;"></i>
       </div>
     </div>
   </div>
@@ -47,64 +61,78 @@
       <p class="section-subtitle">Calidad premium garantizada</p>
     </div>
 
-    <div class="row g-4">
-      <div class="col-lg-3 col-md-4 col-sm-6" *ngFor="let producto of productos">
+    <!-- Loader -->
+    <div class="text-center py-5" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin fa-3x mb-3" style="color: #D9BB84;"></i>
+      <p style="color: #59514F; font-size: 1.2rem;">Cargando productos...</p>
+    </div>
+
+    <!-- Sin productos -->
+    <div class="text-center py-5" *ngIf="!loading && productosFiltrados.length === 0">
+      <i class="fas fa-box-open fa-4x mb-3" style="color: #D9BB84; opacity: 0.3;"></i>
+      <h3 style="color: #59514F;">No hay productos disponibles</h3>
+      <p class="text-muted">Intenta con otra categoría</p>
+    </div>
+
+    <!-- Grid de productos -->
+    <div class="row g-4" *ngIf="!loading && productosFiltrados.length > 0">
+      <div class="col-lg-3 col-md-4 col-sm-6" *ngFor="let producto of productosFiltrados">
         <div class="product-card">
           <!-- Badge de oferta -->
-          <div class="product-badge" *ngIf="producto.enOferta">
+          <div class="product-badge" *ngIf="producto.en_oferta">
             <span class="badge-oferta">OFERTA</span>
           </div>
 
           <!-- Badge de stock -->
-          <div class="product-stock-badge" *ngIf="!producto.stock">
+          <div class="product-stock-badge" *ngIf="producto.stock === 0">
             <span class="badge-agotado">AGOTADO</span>
           </div>
 
           <!-- Imagen del producto -->
           <div class="product-image">
-            <img [src]="producto.imagen" [alt]="producto.nombre" class="img-fluid">
+            <img [src]="getImagenProducto(producto.imagen)" [alt]="producto.nombre" class="img-fluid">
             <div class="product-overlay">
               <button class="btn-quick-view" (click)="verDetalle(producto)">
-                <i class="fas fa-eye"></i>
+                <i class="fas fa-search-plus"></i>
               </button>
             </div>
           </div>
 
           <!-- Información del producto -->
           <div class="product-info">
-            <div class="product-category">{{ producto.categoria }}</div>
+            <div class="product-category">{{ producto.category?.nombre || 'Sin categoría' }}</div>
             <h4 class="product-name">{{ producto.nombre }}</h4>
-            <p class="product-description">{{ producto.descripcion }}</p>
+            <p class="product-description">{{ producto.descripcion || 'Producto de calidad premium' }}</p>
 
-            <!-- Peso -->
+            <!-- Unidad de venta -->
             <div class="product-weight">
-              <i class="fas fa-weight"></i>
-              <span>{{ producto.peso }}</span>
+              <i class="fas fa-weight me-2"></i>
+              <span>Por {{ producto.unidad_venta }}</span>
             </div>
 
             <!-- Calificación -->
             <div class="product-rating">
-              <i *ngFor="let estrella of generarEstrellas(producto.calificacion)"
+              <i *ngFor="let estrella of generarEstrellas(producto)"
                  [class]="estrella"></i>
-              <span class="rating-text">({{ producto.calificacion }}.0)</span>
+              <span class="rating-text">({{ getCalificacion(producto) }}.0)</span>
             </div>
 
             <!-- Precios -->
             <div class="product-pricing">
-              <span class="price-current">${{ producto.precio }}</span>
-              <span class="price-original" *ngIf="producto.precioOriginal">
-                ${{ producto.precioOriginal }}
+              <span class="price-current">${{ (producto.precio_final || producto.precio_oferta || producto.precio).toFixed(2) }}</span>
+              <span class="price-original" *ngIf="producto.en_oferta && producto.precio_oferta">
+                ${{ producto.precio.toFixed(2) }}
               </span>
             </div>
 
             <!-- Botón agregar al carrito -->
             <button
               class="btn-add-cart"
-              [disabled]="!producto.stock"
+              [disabled]="producto.stock === 0"
               (click)="agregarAlCarrito(producto)">
               <i class="fas fa-shopping-cart me-2"></i>
-              <span *ngIf="producto.stock">Agregar al Carrito</span>
-              <span *ngIf="!producto.stock">No Disponible</span>
+              <span *ngIf="producto.stock > 0">Agregar al Carrito</span>
+              <span *ngIf="producto.stock === 0">No Disponible</span>
             </button>
           </div>
         </div>

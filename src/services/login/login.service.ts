@@ -23,7 +23,7 @@ export class LoginService {
     };
 
     return this.http.post<any>(
-      `${environment.apiUrl}/usuarios/login`,
+      `${environment.apiUrl}/clientes/login`,
       formData
     );
   }
@@ -34,11 +34,10 @@ export class LoginService {
     localStorage.setItem('clienteNombre', response.data.cliente.nombre);
     localStorage.setItem('clienteEmail', response.data.cliente.correo);
     localStorage.setItem('clienteId', response.data.cliente.id.toString());
-    localStorage.setItem('profileIsComplete', response.data.cliente.profileIsComplete);
-    localStorage.setItem(
-      'clienteApellidoPaterno',
-      response.data.cliente.apellido
-    );
+    localStorage.setItem('clienteApellidoPaterno', response.data.cliente.apellido);
+    localStorage.setItem('clienteTelefono', response.data.cliente.telefono || '');
+    localStorage.setItem('clienteTipoCliente', response.data.cliente.tipo_cliente);
+    localStorage.setItem('clienteSaldo', response.data.cliente.saldo_cuenta);
     this.authService.setLoggedIn(true);
     this.router.navigate(['/']);
   }

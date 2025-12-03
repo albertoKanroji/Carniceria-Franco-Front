@@ -18,6 +18,9 @@ import { VideosSelectComponent } from './videos-select/videos-select.component';
 import { SeguimientoComponent } from './seguimiento/seguimiento.component';
 import { LesionesComponent } from './lesiones/lesiones.component';
 import { GuiaRecuperacionComponent } from './guia-recuperacion/guia-recuperacion.component';
+import { ProductosComponent } from './productos/productos.component';
+import { CategoriasComponent } from './categorias/categorias.component';
+import { CarritoComponent } from './carrito/carrito.component';
 
 const routes: Routes = [
   {
@@ -94,6 +97,18 @@ const routes: Routes = [
     path: 'profile',
     component:UserProfileComponent,
     canActivate: [MisRutinasGuard]
+  },
+  {
+    path: 'productos',
+    component: ProductosComponent
+  },
+  {
+    path: 'categorias',
+    component: CategoriasComponent
+  },
+  {
+    path: 'carrito',
+    component: CarritoComponent
   },
 ];
 

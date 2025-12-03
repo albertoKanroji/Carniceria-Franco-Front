@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/services/auth-service/auth-service.service';
 import { NotificacionService } from 'src/services/notificacion-service/notificaciones.service';
+import { CarritoService, ItemCarrito } from 'src/services/carrito/carrito.service';
+import { environment } from 'src/environments/environment';
 declare var bootstrap: any;
 @Component({
   selector: 'app-header',
@@ -19,6 +21,8 @@ export class HeaderComponent implements OnInit {
   userName: string | null = null;
   profileStatusIcon: string | null = null;
   notificacionesOriginales: any[] = [];
+  itemsCarrito: ItemCarrito[] = [];
+  cantidadCarrito: number = 0;
 
   mostrarModal(notificacion: any): void {
     const vistas = JSON.parse(
@@ -51,7 +55,8 @@ export class HeaderComponent implements OnInit {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private notificacionService: NotificacionService
+    private notificacionService: NotificacionService,
+    private carritoService: CarritoService
   ) {
     this.authService.isLoggedIn$.subscribe((isLoggedIn) => {
       this.isLoggedIn = isLoggedIn;
@@ -67,6 +72,12 @@ export class HeaderComponent implements OnInit {
     // Suscribirse a los cambios en el estado del perfil
     this.authService.profileStatus$.subscribe(() => {
       this.updateProfileStatusIcon();
+    });
+
+    // Suscribirse a los cambios del carrito
+    this.carritoService.obtenerCarritoObservable().subscribe(items => {
+      this.itemsCarrito = items;
+      this.cantidadCarrito = items.reduce((total, item) => total + item.cantidad, 0);
     });
   }
   private updateUserData() {
@@ -150,5 +161,23 @@ export class HeaderComponent implements OnInit {
   logout(): void {
     // Llamar al método logout() del servicio AuthService
     this.authService.logout();
+  }
+
+  getImagenProducto(imagen: string | null): string {
+    if (!imagen) {
+      return 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=100';
+    }
+    if (imagen.startsWith('http')) {
+      return imagen;
+    }
+    return `${environment.apiUrl.replace('/api/v1', '')}/${imagen}`;
+  }
+
+  verCarritoCompleto(): void {
+    this.router.navigate(['/pages/carrito']);
+  }
+
+  eliminarDelCarrito(productoId: number): void {
+    this.carritoService.eliminarProducto(productoId);
   }
 }
