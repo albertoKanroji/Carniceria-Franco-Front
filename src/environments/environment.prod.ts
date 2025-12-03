@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://infinity-tech-d98d94711f79.herokuapp.com/api/v1'
+  apiUrl: 'https://carniceriafrancobackend-app-eb4751846d28.herokuapp.com/api/v1'
 };
