@@ -157,6 +157,16 @@ export class ProductosComponent implements OnInit {
     return `${environment.apiUrl.replace('/api/v1', '')}/${imagen}`;
   }
 
+  getImagenUrlFromProduct(producto: Producto): string {
+    // Si existe imagen_url, usarla directamente limpiando las barras invertidas
+    if (producto.imagen_url) {
+      return producto.imagen_url.replace(/\\/g, '');
+    }
+
+    // Fallback al método original
+    return this.getImagenUrl(producto.imagen);
+  }
+
   tieneStock(producto: Producto): boolean {
     return producto.tiene_stock !== false && producto.stock > 0;
   }

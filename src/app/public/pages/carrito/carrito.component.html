@@ -1,18 +1,6 @@
-<!-- Hero Section -->
-<div class="hero-section">
-  <div class="container">
-    <div class="hero-content text-center">
-      <h1 class="hero-title">MI CARRITO</h1>
-      <p class="hero-description">
-        Revisa tus productos seleccionados antes de finalizar tu compra
-      </p>
-    </div>
-  </div>
-</div>
-
 <!-- Carrito Section -->
 <div class="carrito-section">
-  <div class="container">
+  <div class="container-fluid px-3 px-lg-4">
     <!-- Carrito vacío -->
     <div *ngIf="itemsCarrito.length === 0" class="empty-cart text-center py-5">
       <i class="fas fa-shopping-cart fa-5x mb-4" style="color: #D9BB84; opacity: 0.3;"></i>
@@ -25,7 +13,7 @@
     </div>
 
     <!-- Carrito con productos -->
-    <div *ngIf="itemsCarrito.length > 0" class="row g-4">
+    <div *ngIf="itemsCarrito.length > 0" class="row g-3">
       <!-- Lista de productos -->
       <div class="col-lg-8">
         <div class="cart-card">
@@ -54,6 +42,7 @@
           <!-- Items del carrito -->
           <div class="cart-items">
             <div class="cart-item" *ngFor="let item of itemsCarrito">
+              <!-- Checkbox de selección -->
               <div class="item-checkbox">
                 <input
                   class="form-check-input"
@@ -63,52 +52,114 @@
                   (change)="toggleSeleccion(item.producto.id)">
               </div>
 
+              <!-- Imagen del producto -->
               <div class="item-image">
                 <img [src]="getImagenProducto(item.producto.imagen)" [alt]="item.producto.nombre">
                 <span *ngIf="item.producto.en_oferta" class="badge-oferta-mini">OFERTA</span>
               </div>
 
+              <!-- Detalles del producto -->
               <div class="item-details">
                 <h4 class="item-name">{{ item.producto.nombre }}</h4>
                 <p class="item-category">{{ item.producto.category?.nombre || 'Sin categoría' }}</p>
                 <p class="item-description">{{ item.producto.descripcion }}</p>
                 <div class="item-unit">
-                  <i class="fas fa-weight me-2"></i>
-                  Por {{ item.producto.unidad_venta }}
+                  <i class="fas fa-weight me-1"></i>
+                  {{ item.producto.unidad_venta }}
                 </div>
               </div>
 
-              <div class="item-quantity">
-                <button
-                  class="qty-btn"
-                  (click)="decrementarCantidad(item.producto.id)"
-                  [disabled]="item.cantidad <= 1">
-                  <i class="fas fa-minus"></i>
-                </button>
-                <input
-                  type="number"
-                  class="qty-input"
-                  [value]="item.cantidad"
-                  (change)="actualizarCantidad(item.producto.id, $any($event.target).value)"
-                  min="1"
-                  [max]="item.producto.stock">
-                <button
-                  class="qty-btn"
-                  (click)="incrementarCantidad(item.producto.id)"
-                  [disabled]="item.cantidad >= item.producto.stock">
-                  <i class="fas fa-plus"></i>
-                </button>
+              <!-- Controles de cantidad/tipo de venta -->
+              <div class="item-controls">
+                <!-- Selector de tipo de venta (solo para productos por peso) -->
+                <div class="sale-type-selector" *ngIf="puedeVendersePorPesos(item.producto.unidad_venta)">
+                  <label class="sale-type-option">
+                    <input
+                      type="radio"
+                      [name]="'tipoVenta' + item.producto.id"
+                      [value]="'cantidad'"
+                      [checked]="item.tipoVenta === 'cantidad'"
+                      (change)="cambiarTipoVenta(item.producto.id, 'cantidad')">
+                    <span class="sale-type-label">
+                      <i class="fas fa-balance-scale"></i>
+                      Por cantidad
+                    </span>
+                  </label>
+                  <label class="sale-type-option">
+                    <input
+                      type="radio"
+                      [name]="'tipoVenta' + item.producto.id"
+                      [value]="'pesos'"
+                      [checked]="item.tipoVenta === 'pesos'"
+                      (change)="cambiarTipoVenta(item.producto.id, 'pesos')">
+                    <span class="sale-type-label">
+                      <i class="fas fa-dollar-sign"></i>
+                      Por pesos
+                    </span>
+                  </label>
+                </div>
+
+                <!-- Controles de cantidad -->
+                <div class="quantity-section">
+                  <!-- Por cantidad -->
+                  <div *ngIf="item.tipoVenta === 'cantidad'" class="quantity-controls">
+                    <button
+                      class="qty-btn"
+                      (click)="decrementarCantidad(item.producto.id)"
+                      [disabled]="item.cantidad <= 1">
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <input
+                      type="number"
+                      class="qty-input"
+                      [value]="item.cantidad"
+                      (change)="actualizarCantidad(item.producto.id, $any($event.target).value)"
+                      min="1"
+                      [max]="item.producto.stock"
+                      step="0.01">
+                    <button
+                      class="qty-btn"
+                      (click)="incrementarCantidad(item.producto.id)"
+                      [disabled]="item.cantidad >= item.producto.stock">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+
+                  <!-- Por pesos -->
+                  <div *ngIf="item.tipoVenta === 'pesos'" class="pesos-controls">
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text">$</span>
+                      <input
+                        type="number"
+                        class="form-control pesos-input"
+                        [value]="item.monto_pesos"
+                        (change)="actualizarMontoPesos(item.producto.id, $any($event.target).value)"
+                        min="1"
+                        step="0.01"
+                        placeholder="50.00">
+                    </div>
+                    <small class="pesos-equivalence">
+                      ≈ {{ (item.cantidad || 0).toFixed(3) }} {{ item.producto.unidad_venta }}(s)
+                    </small>
+                  </div>
+                </div>
               </div>
 
+              <!-- Precio -->
               <div class="item-price">
-                <div class="price-current">${{ item.subtotal.toFixed(2) }}</div>
-                <div class="price-unit">${{ (item.producto.precio_final || item.producto.precio).toFixed(2) }} c/u</div>
+                <div class="price-current">${{ (+(item.subtotal || 0)).toFixed(2) }}</div>
+                <div class="price-unit">
+                  ${{ (+(item.producto.precio_final || item.producto.precio || 0)).toFixed(2) }}
+                  <span class="d-none d-md-inline">/ unidad</span>
+                </div>
               </div>
 
+              <!-- Botón eliminar -->
               <button
                 class="btn-delete-item"
                 (click)="eliminarProducto(item.producto.id)"
-                [disabled]="eliminandoProducto">
+                [disabled]="eliminandoProducto"
+                title="Eliminar producto">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -118,7 +169,7 @@
 
       <!-- Resumen del pedido -->
       <div class="col-lg-4">
-        <div class="summary-card sticky-top" style="top: 100px;">
+        <div class="summary-card sticky-top" style="top: 20px;">
           <h3 class="summary-title">Resumen del Pedido</h3>
 
           <div class="summary-item">
@@ -138,13 +189,65 @@
             <span>${{ total.toFixed(2) }}</span>
           </div>
 
+          <!-- Selector de método de pago -->
+          <div class="payment-method-selector mt-3">
+            <h4 class="payment-title">Método de Pago</h4>
+            <div class="payment-options">
+              <label class="payment-option">
+                <input type="radio" name="metodoPago" value="efectivo" [(ngModel)]="metodoPago">
+                <span class="payment-label">
+                  <i class="fas fa-money-bill-wave"></i>
+                  Efectivo
+                </span>
+              </label>
+
+              <label class="payment-option">
+                <input type="radio" name="metodoPago" value="tarjeta" [(ngModel)]="metodoPago">
+                <span class="payment-label">
+                  <i class="fas fa-credit-card"></i>
+                  Tarjeta
+                </span>
+              </label>
+
+              <label class="payment-option">
+                <input type="radio" name="metodoPago" value="transferencia" [(ngModel)]="metodoPago">
+                <span class="payment-label">
+                  <i class="fas fa-university"></i>
+                  Transferencia
+                </span>
+              </label>
+
+              <label class="payment-option">
+                <input type="radio" name="metodoPago" value="credito" [(ngModel)]="metodoPago">
+                <span class="payment-label">
+                  <i class="fas fa-file-invoice-dollar"></i>
+                  Crédito
+                </span>
+              </label>
+
+              <label class="payment-option mercado-pago-option">
+                <input type="radio" name="metodoPago" value="mercado_pago" [(ngModel)]="metodoPago">
+                <span class="payment-label">
+                  <i class="fas fa-shopping-cart"></i>
+                  Mercado Pago
+                  <span class="badge-nuevo">Nuevo</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
           <button
             class="btn-checkout"
             (click)="procederPago()"
             [disabled]="procesandoPago">
             <i *ngIf="!procesandoPago" class="fas fa-lock me-2"></i>
             <i *ngIf="procesandoPago" class="fas fa-spinner fa-spin me-2"></i>
-            {{ procesandoPago ? 'Procesando...' : 'Proceder al Pago' }}
+            <span *ngIf="metodoPago !== 'mercado_pago'">
+              {{ procesandoPago ? 'Procesando...' : 'Proceder al Pago' }}
+            </span>
+            <span *ngIf="metodoPago === 'mercado_pago'">
+              {{ procesandoPago ? 'Redirigiendo...' : 'Pagar con Mercado Pago' }}
+            </span>
           </button>
 
           <button class="btn-continue-shopping" (click)="continuarComprando()">
@@ -162,19 +265,29 @@
           </button>
 
           <!-- Información adicional -->
-          <div class="info-box mt-3">
-            <i class="fas fa-truck"></i>
-            <div>
-              <strong>Envío gratis</strong>
-              <p>En compras mayores a $500</p>
+          <div class="info-boxes mt-3">
+            <div class="info-box">
+              <i class="fas fa-truck"></i>
+              <div>
+                <strong>Envío gratis</strong>
+                <p>En compras mayores a $500</p>
+              </div>
             </div>
-          </div>
 
-          <div class="info-box">
-            <i class="fas fa-shield-alt"></i>
-            <div>
-              <strong>Compra segura</strong>
-              <p>Tus datos están protegidos</p>
+            <div class="info-box">
+              <i class="fas fa-shield-alt"></i>
+              <div>
+                <strong>Compra segura</strong>
+                <p>Tus datos están protegidos</p>
+              </div>
+            </div>
+
+            <div class="info-box" *ngIf="metodoPago === 'mercado_pago'">
+              <i class="fas fa-credit-card" style="color: #00a8ff;"></i>
+              <div>
+                <strong>Mercado Pago</strong>
+                <p>Paga con tarjeta, efectivo o transferencia</p>
+              </div>
             </div>
           </div>
         </div>
@@ -183,6 +296,7 @@
   </div>
 </div>
 
+<!-- MODALES (mantener los mismos) -->
 <!-- Modal Confirmación de Compra -->
 <div class="modal-overlay" *ngIf="mostrarModalConfirmacion" (click)="cerrarModalConfirmacion()">
   <div class="modal-content" (click)="$event.stopPropagation()">
@@ -196,11 +310,31 @@
       <div class="confirmation-details">
         <div class="detail-row">
           <span><i class="fas fa-box me-2"></i>Productos:</span>
-          <strong>{{ itemsCarrito.length }}</strong>
+          <strong>{{ itemsCarrito.length }} productos</strong>
         </div>
-        <div class="detail-row">
+
+        <!-- Lista de productos en el carrito -->
+        <div class="products-summary mt-3">
+          <h5 style="color: #59514F; font-size: 0.9rem; margin-bottom: 10px;">
+            <i class="fas fa-list me-2"></i>Resumen de productos:
+          </h5>
+          <div class="product-item-summary" *ngFor="let item of itemsCarrito; let i = index">
+            <span class="product-name">{{ i + 1 }}. {{ item.producto.nombre }}</span>
+            <div class="product-details">
+              <span *ngIf="item.tipoVenta === 'cantidad'">
+                {{ (+(item.cantidad || 0)).toFixed(2) }} {{ item.producto.unidad_venta }}(s)
+              </span>
+              <span *ngIf="item.tipoVenta === 'pesos'">
+                ${{ (+(item.monto_pesos || 0)).toFixed(2) }} (≈{{ (+(item.cantidad || 0)).toFixed(3) }} {{ item.producto.unidad_venta }}s)
+              </span>
+              <strong class="item-subtotal">${{ (+(item.subtotal || 0)).toFixed(2) }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row mt-3">
           <span><i class="fas fa-credit-card me-2"></i>Método de pago:</span>
-          <strong>{{ metodoPago.toUpperCase() }}</strong>
+          <strong>{{ getTextoMetodoPago() }}</strong>
         </div>
         <div class="detail-row total-row">
           <span><i class="fas fa-dollar-sign me-2"></i>Total a pagar:</span>

@@ -16,6 +16,7 @@ export interface Producto {
   stock: number;
   stock_minimo: number;
   imagen: string | null;
+  imagen_url?: string | null;
   activo: number;
   destacado: number;
   refrigerado: number;

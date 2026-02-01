@@ -69,12 +69,13 @@ export interface Venta {
 
 export interface CrearVentaRequest {
   customer_id: number;
-  metodo_pago: 'efectivo' | 'tarjeta' | 'transferencia' | 'credito';
+  metodo_pago: 'efectivo' | 'tarjeta' | 'transferencia' | 'credito' | 'mercado_pago';
   descuento?: number;
   notas?: string;
   productos: {
     product_id: number;
-    cantidad: number;
+    cantidad?: number;
+    monto_pesos?: number;
   }[];
 }
 
@@ -142,6 +143,52 @@ export interface TodasVentasResponse {
     per_page: number;
     to: number;
     total: number;
+  };
+}
+
+// Interfaces para recomendaciones
+export interface ProductoRecomendado {
+  id: number;
+  nombre: string;
+  codigo: string;
+  precio: number;
+  descripcion?: string;
+  unidad_venta: string;
+
+  precio_oferta?: number;
+  en_oferta?: number;
+  imagen: string | null;
+  stock: number;
+  cantidad_recomendada: number;
+  subtotal: number;
+  categoria_id?: number;
+  categoria_nombre?: string;
+}
+
+export interface CarritoRecomendado {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  productos: ProductoRecomendado[];
+  total_estimado: number;
+  ahorro_estimado: number;
+  icono?: string;
+  color?: string;
+}
+
+export interface RecomendacionesResponse {
+  success: boolean;
+  status: number;
+  message: string;
+  data: {
+    customer: {
+      id: number;
+      nombre: string;
+      apellido: string;
+      email: string;
+    };
+    recomendaciones: CarritoRecomendado[];
+    total_recomendaciones: number;
   };
 }
 
@@ -224,5 +271,12 @@ export class VentasService {
     }
 
     return this.http.get<TodasVentasResponse>(`${this.apiUrl}/ventas`, { params });
+  }
+
+  /**
+   * Obtener recomendaciones personalizadas de compras para un cliente
+   */
+  obtenerRecomendaciones(customerId: number): Observable<RecomendacionesResponse> {
+    return this.http.get<RecomendacionesResponse>(`${this.apiUrl}/ventas/cliente/${customerId}/recomendaciones`);
   }
 }

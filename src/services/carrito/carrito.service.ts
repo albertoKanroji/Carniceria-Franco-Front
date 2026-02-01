@@ -5,6 +5,8 @@ import { Producto } from '../productos/productos.service';
 export interface ItemCarrito {
   producto: Producto;
   cantidad: number;
+  monto_pesos?: number;
+  tipoVenta: 'cantidad' | 'pesos';
   subtotal: number;
 }
 
@@ -14,7 +16,7 @@ export interface ItemCarrito {
 export class CarritoService {
   private CARRITO_KEY = 'carrito_franco';
   private carritoSubject = new BehaviorSubject<ItemCarrito[]>(this.obtenerCarrito());
-  
+
   public carrito$ = this.carritoSubject.asObservable();
 
   constructor() { }
@@ -51,18 +53,21 @@ export class CarritoService {
     const carrito = this.obtenerCarrito();
     const index = carrito.findIndex(item => item.producto.id === producto.id);
 
-    const precioFinal = producto.precio_final || producto.precio_oferta || producto.precio;
+    const precioFinal = Number(producto.precio_final || producto.precio_oferta || producto.precio || 0);
+    const cantidadNum = Number(cantidad);
 
     if (index !== -1) {
       // Si ya existe, incrementar cantidad
-      carrito[index].cantidad += cantidad;
-      carrito[index].subtotal = carrito[index].cantidad * precioFinal;
+      carrito[index].cantidad = Number(carrito[index].cantidad) + cantidadNum;
+      carrito[index].subtotal = Number(carrito[index].cantidad) * precioFinal;
     } else {
       // Si no existe, agregarlo
       carrito.push({
         producto: producto,
-        cantidad: cantidad,
-        subtotal: cantidad * precioFinal
+        cantidad: cantidadNum,
+        monto_pesos: undefined,
+        tipoVenta: 'cantidad',
+        subtotal: cantidadNum * precioFinal
       });
     }
 
@@ -75,16 +80,49 @@ export class CarritoService {
   actualizarCantidad(productoId: number, cantidad: number): void {
     const carrito = this.obtenerCarrito();
     const index = carrito.findIndex(item => item.producto.id === productoId);
+    const cantidadNum = Number(cantidad);
 
-    if (index !== -1 && cantidad > 0) {
-      const precioFinal = carrito[index].producto.precio_final || 
-                          carrito[index].producto.precio_oferta || 
-                          carrito[index].producto.precio;
-      carrito[index].cantidad = cantidad;
-      carrito[index].subtotal = cantidad * precioFinal;
+    if (index !== -1 && cantidadNum > 0) {
+      const precioFinal = Number(carrito[index].producto.precio_final ||
+                          carrito[index].producto.precio_oferta ||
+                          carrito[index].producto.precio || 0);
+      carrito[index].cantidad = cantidadNum;
+      carrito[index].tipoVenta = 'cantidad';
+      carrito[index].monto_pesos = undefined;
+      carrito[index].subtotal = cantidadNum * precioFinal;
       this.guardarCarrito(carrito);
-    } else if (cantidad <= 0) {
+    } else if (cantidadNum <= 0) {
       this.eliminarProducto(productoId);
+    }
+  }
+
+  /**
+   * Actualizar venta por pesos
+   */
+  actualizarMontoPesos(productoId: number, monto: number): void {
+    const carrito = this.obtenerCarrito();
+    const index = carrito.findIndex(item => item.producto.id === productoId);
+    const montoNum = Number(monto);
+
+    if (index !== -1 && montoNum > 0) {
+      const precioFinal = Number(carrito[index].producto.precio_final ||
+                          carrito[index].producto.precio_oferta ||
+                          carrito[index].producto.precio || 0);
+
+      // Calcular cantidad basada en el monto
+      let cantidad = montoNum / precioFinal;
+
+      // Ajustar según la unidad de venta
+      const unidad = carrito[index].producto.unidad_venta.toLowerCase();
+      if (unidad === 'gramo' || unidad === 'gramos') {
+        cantidad = cantidad * 1000; // Convertir kg a gramos
+      }
+
+      carrito[index].cantidad = Number(cantidad);
+      carrito[index].monto_pesos = montoNum;
+      carrito[index].tipoVenta = 'pesos';
+      carrito[index].subtotal = montoNum;
+      this.guardarCarrito(carrito);
     }
   }
 

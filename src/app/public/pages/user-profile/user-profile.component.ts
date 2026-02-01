@@ -4,10 +4,12 @@ import {LoginService} from "../../../../services/login/login.service";
 import {AuthService} from "../../../../services/auth-service/auth-service.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {CustomerService} from "../../../../services/customers/customer-service.service";
-import { VentasService, Venta, EstadisticasClienteResponse } from 'src/services/ventas/ventas.service';
+import { VentasService, Venta, EstadisticasClienteResponse, CarritoRecomendado, ProductoRecomendado, RecomendacionesResponse } from 'src/services/ventas/ventas.service';
 import { environment } from 'src/environments/environment';
 import { ToastrService } from 'ngx-toastr';
 import {catchError, of} from "rxjs";
+import { CarritoService } from 'src/services/carrito/carrito.service';
+import { Producto } from 'src/services/productos/productos.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -19,6 +21,7 @@ export class UserProfileComponent implements OnInit {
   loading = false;
   loadingBTN = false;
   loadingCompras = false;
+  loadingRecomendaciones = false;
   activeTab: string = 'datos';
   // Declara una variable para almacenar la respuesta del servicio
   solicitud: any;
@@ -33,12 +36,18 @@ export class UserProfileComponent implements OnInit {
   // Detalle de compra seleccionada
   compraSeleccionada: Venta | null = null;
   mostrandoDetalle = false;
+  // Recomendaciones
+  recomendaciones: CarritoRecomendado[] = [];
+  datosRecomendaciones: any = null;
 
   switchTab(tab: string) {
     this.activeTab = tab;
     if (tab === 'compras' && this.compras.length === 0) {
       this.loadCompras();
       this.loadEstadisticas();
+    }
+    if (tab === 'recomendaciones' && this.recomendaciones.length === 0) {
+      this.loadRecomendaciones();
     }
   }
 
@@ -121,9 +130,17 @@ export class UserProfileComponent implements OnInit {
     if (!imagen) {
       return 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400';
     }
+
+    // Si ya es una URL completa, limpiar las barras invertidas
     if (imagen.startsWith('http')) {
-      return imagen;
+      return imagen.replace(/\\/g, '');
     }
+
+    // Si empieza con '/', construir la URL completa
+    if (imagen.startsWith('/')) {
+      return `${environment.apiUrl.replace('/api/v1', '')}${imagen.replace(/\\/g, '')}`;
+    }
+
     return `${environment.apiUrl.replace('/api/v1', '')}/${imagen}`;
   }
 
@@ -158,6 +175,177 @@ export class UserProfileComponent implements OnInit {
   formatMoney(value: any): string {
     return this.toNumber(value).toFixed(2);
   }
+
+  // Métodos para Recomendaciones
+  loadRecomendaciones() {
+    const customerId = this.authService.getUserId();
+    if (!customerId) {
+      this.toastr.error('No se pudo obtener el ID del cliente');
+      return;
+    }
+
+    this.loadingRecomendaciones = true;
+    this.ventasService.obtenerRecomendaciones(customerId)
+      .pipe(
+        catchError(err => {
+          console.error('Error al cargar recomendaciones:', err);
+          this.toastr.error('No se pudieron cargar las recomendaciones', 'Error');
+          this.loadingRecomendaciones = false;
+          return of(null);
+        })
+      )
+      .subscribe(response => {
+        if (response && response.success) {
+          this.recomendaciones = response.data.recomendaciones;
+          this.datosRecomendaciones = response.data;
+        } else {
+          this.recomendaciones = [];
+        }
+        this.loadingRecomendaciones = false;
+      });
+  }
+
+  // TrackBy function para optimizar el rendering de carritos
+  trackByCarrito(index: number, carrito: CarritoRecomendado): number {
+    return carrito.id;
+  }
+
+  // Obtener la clase CSS del ícono del carrito según su ID
+  getCarritoIconClass(carritoId: number): string {
+    switch(carritoId) {
+      case 1: return 'favoritos';
+      case 2: return 'mix';
+      case 3: return 'ofertas';
+      default: return 'favoritos';
+    }
+  }
+
+  // Obtener el ícono del carrito según su nombre
+  getCarritoIcon(carritoNombre: string): string {
+    if (carritoNombre.includes('Favoritos')) return 'fas fa-heart';
+    if (carritoNombre.includes('Mix') || carritoNombre.includes('Recomendado')) return 'fas fa-magic';
+    if (carritoNombre.includes('Ofertas')) return 'fas fa-tags';
+    return 'fas fa-shopping-cart';
+  }
+
+  // Agregar un producto individual al carrito
+  agregarProductoAlCarrito(producto: ProductoRecomendado) {
+    // Convertir ProductoRecomendado a Producto para el servicio de carrito
+    const productoParaCarrito: Producto = {
+      id: producto.id,
+      codigo: producto.codigo || '',
+      nombre: producto.nombre,
+      descripcion: producto.descripcion || '',
+      precio: Number(producto.precio || 0),
+      precio_oferta: producto.precio_oferta ? Number(producto.precio_oferta) : null,
+      precio_final: producto.precio_oferta ? Number(producto.precio_oferta) : Number(producto.precio || 0),
+      stock: producto.stock || 100,
+      stock_minimo: 0,
+      unidad_venta: producto.unidad_venta || 'unidad',
+      category_id: producto.categoria_id || 0,
+      imagen: producto.imagen || null,
+      imagen_url: null,
+      en_oferta: Number(producto.en_oferta) || 0,
+      activo: 1,
+      destacado: 0,
+      refrigerado: 0,
+      fecha_vencimiento: null,
+      tiene_stock: true,
+      created_at: '',
+      updated_at: ''
+    };
+
+    // Agregar al carrito con la cantidad recomendada
+    const cantidadAgregar = Number(producto.cantidad_recomendada || 1);
+    this.carritoService.agregarProducto(productoParaCarrito, cantidadAgregar);
+
+    this.toastr.success(
+      `${cantidadAgregar} ${producto.unidad_venta}(s) agregado(s)`,
+      `${producto.nombre}`
+    );
+  }
+
+  // Agregar todo el carrito recomendado
+  agregarCarritoCompleto(carrito: CarritoRecomendado) {
+    if (!carrito.productos || carrito.productos.length === 0) {
+      this.toastr.warning('No hay productos para agregar', 'Carrito vacío');
+      return;
+    }
+
+    let productosAgregados = 0;
+
+    // Agregar cada producto del carrito recomendado
+    carrito.productos.forEach(producto => {
+      const productoParaCarrito: Producto = {
+        id: producto.id,
+        codigo: producto.codigo || '',
+        nombre: producto.nombre,
+        descripcion: producto.descripcion || '',
+        precio: Number(producto.precio || 0),
+        precio_oferta: producto.precio_oferta ? Number(producto.precio_oferta) : null,
+        precio_final: producto.precio_oferta ? Number(producto.precio_oferta) : Number(producto.precio || 0),
+        stock: producto.stock || 100,
+        stock_minimo: 0,
+        unidad_venta: producto.unidad_venta || 'unidad',
+        category_id: producto.categoria_id || 0,
+        imagen: producto.imagen || null,
+        imagen_url: null,
+        en_oferta: Number(producto.en_oferta) || 0,
+        activo: 1,
+        destacado: 0,
+        refrigerado: 0,
+        fecha_vencimiento: null,
+        tiene_stock: true,
+        created_at: '',
+        updated_at: ''
+      };
+
+      const cantidadAgregar = Number(producto.cantidad_recomendada || 1);
+      this.carritoService.agregarProducto(productoParaCarrito, cantidadAgregar);
+      productosAgregados++;
+    });
+
+    this.toastr.success(
+      `${productosAgregados} producto(s) agregado(s) al carrito`,
+      carrito.nombre,
+      { timeOut: 3000 }
+    );
+  }
+
+  // Contar productos favoritos (productos que aparecen en las recomendaciones)
+  contarProductosFavoritos(): number {
+    if (!this.recomendaciones || this.recomendaciones.length === 0) return 0;
+    const productosUnicos = new Set();
+    this.recomendaciones.forEach(carrito => {
+      carrito.productos.forEach(producto => {
+        productosUnicos.add(producto.id);
+      });
+    });
+    return productosUnicos.size;
+  }
+
+  // Contar categorías diferentes en las recomendaciones
+  contarCategorias(): number {
+    if (!this.recomendaciones || this.recomendaciones.length === 0) return 0;
+    const categoriasUnicas = new Set();
+    this.recomendaciones.forEach(carrito => {
+      carrito.productos.forEach(producto => {
+        if (producto.categoria_id) {
+          categoriasUnicas.add(producto.categoria_id);
+        }
+      });
+    });
+    return categoriasUnicas.size;
+  }
+
+  // Calcular ahorro total de todas las recomendaciones
+  calcularAhorroTotal(): number {
+    if (!this.recomendaciones || this.recomendaciones.length === 0) return 0;
+    return this.recomendaciones.reduce((total, carrito) => {
+      return total + this.toNumber(carrito.ahorro_estimado);
+    }, 0);
+  }
+
   constructor(
     private loginService: LoginService,
     private fb: FormBuilder,
@@ -165,7 +353,8 @@ export class UserProfileComponent implements OnInit {
     private customerService: CustomerService,
     private ventasService: VentasService,
     private toastr: ToastrService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private carritoService: CarritoService
   ) {
     this.myForm  = this.fb.group({
       nombre: ['', Validators.required],
@@ -212,6 +401,8 @@ getData(){
     this.route.queryParams.subscribe(params => {
       if (params['tab'] === 'compras') {
         this.switchTab('compras');
+      } else if (params['tab'] === 'recomendaciones') {
+        this.switchTab('recomendaciones');
       }
     });
   }
