@@ -57,7 +57,7 @@
             </a>
 
             <!-- Botón de Mi Carrito -->
-            <div class="nav-item dropdown ms-auto me-3">
+            <div *ngIf="isLoggedIn" class="nav-item dropdown ms-auto me-3">
               <button
                 class="btn btn-cart position-relative"
                 type="button"
