@@ -149,6 +149,7 @@ export interface TodasVentasResponse {
 // Interfaces para recomendaciones
 export interface ProductoRecomendado {
   id: number;
+  product_id?: number;
   nombre: string;
   codigo: string;
   precio: number;
@@ -160,9 +161,12 @@ export interface ProductoRecomendado {
   imagen: string | null;
   stock: number;
   cantidad_recomendada: number;
+  cantidad_sugerida?: number;
   subtotal: number;
   categoria_id?: number;
   categoria_nombre?: string;
+  categoria?: string;
+  motivo?: string;
 }
 
 export interface CarritoRecomendado {

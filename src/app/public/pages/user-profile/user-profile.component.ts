@@ -177,6 +177,48 @@ export class UserProfileComponent implements OnInit {
   }
 
   // Métodos para Recomendaciones
+  private normalizarProductoRecomendado(producto: any): ProductoRecomendado {
+    const precio = Number(producto?.precio || 0);
+    const precioOferta = producto?.precio_oferta != null ? Number(producto.precio_oferta) : undefined;
+    const cantidadRecomendada = Number(
+      producto?.cantidad_recomendada ?? producto?.cantidad_sugerida ?? 1
+    );
+
+    return {
+      id: Number(producto?.id ?? producto?.product_id ?? 0),
+      nombre: producto?.nombre || '',
+      codigo: producto?.codigo || '',
+      precio,
+      descripcion: producto?.descripcion || producto?.motivo || '',
+      unidad_venta: producto?.unidad_venta || 'unidad',
+      precio_oferta: precioOferta,
+      en_oferta: Number(producto?.en_oferta || (precioOferta !== undefined ? 1 : 0)),
+      imagen: producto?.imagen || null,
+      stock: Number(producto?.stock ?? 100),
+      cantidad_recomendada: cantidadRecomendada,
+      subtotal: Number(producto?.subtotal ?? cantidadRecomendada * (precioOferta ?? precio)),
+      categoria_id: Number(producto?.categoria_id || 0),
+      categoria_nombre: producto?.categoria_nombre || producto?.categoria || ''
+    };
+  }
+
+  private normalizarCarritoRecomendado(carrito: any): CarritoRecomendado {
+    const productos = (carrito?.productos || []).map((producto: any) =>
+      this.normalizarProductoRecomendado(producto)
+    );
+
+    return {
+      id: Number(carrito?.id || 0),
+      nombre: carrito?.nombre || 'Recomendado',
+      descripcion: carrito?.descripcion || '',
+      productos,
+      total_estimado: Number(carrito?.total_estimado || 0),
+      ahorro_estimado: Number(carrito?.ahorro_estimado || 0),
+      icono: carrito?.icono,
+      color: carrito?.color
+    };
+  }
+
   loadRecomendaciones() {
     const customerId = this.authService.getUserId();
     if (!customerId) {
@@ -196,7 +238,9 @@ export class UserProfileComponent implements OnInit {
       )
       .subscribe(response => {
         if (response && response.success) {
-          this.recomendaciones = response.data.recomendaciones;
+          this.recomendaciones = (response.data.recomendaciones || []).map(carrito =>
+            this.normalizarCarritoRecomendado(carrito)
+          );
           this.datosRecomendaciones = response.data;
         } else {
           this.recomendaciones = [];
@@ -230,6 +274,11 @@ export class UserProfileComponent implements OnInit {
 
   // Agregar un producto individual al carrito
   agregarProductoAlCarrito(producto: ProductoRecomendado) {
+    if (!producto?.id) {
+      this.toastr.error('Producto invalido para agregar al carrito', 'Error');
+      return;
+    }
+
     // Convertir ProductoRecomendado a Producto para el servicio de carrito
     const productoParaCarrito: Producto = {
       id: producto.id,
@@ -276,6 +325,10 @@ export class UserProfileComponent implements OnInit {
 
     // Agregar cada producto del carrito recomendado
     carrito.productos.forEach(producto => {
+      if (!producto?.id) {
+        return;
+      }
+
       const productoParaCarrito: Producto = {
         id: producto.id,
         codigo: producto.codigo || '',

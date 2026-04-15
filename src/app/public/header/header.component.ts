@@ -77,7 +77,7 @@ export class HeaderComponent implements OnInit {
     // Suscribirse a los cambios del carrito
     this.carritoService.obtenerCarritoObservable().subscribe(items => {
       this.itemsCarrito = items;
-      this.cantidadCarrito = items.reduce((total, item) => total + item.cantidad, 0);
+      this.cantidadCarrito = items.length;
     });
   }
   private updateUserData() {
