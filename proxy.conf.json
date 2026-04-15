@@ -1,6 +1,6 @@
 {
     "/api": {
-      "target": "http://dev.xrom.cc:8021/",
+      "target": "https://carniceriafrancobackend-app-eb4751846d28.herokuapp.com/",
       "secure": false,
       "changeOrigin": true,
       "pathRewrite": {

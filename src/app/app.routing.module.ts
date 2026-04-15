@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { CreateAccountComponent } from './public/pages/create-account/create-account.component';
 
 
 const routes: Routes = [
@@ -37,6 +38,10 @@ const routes: Routes = [
     path:'login',
     loadChildren: () =>
       import('./public/login/login.module').then((m) => m.LoginModule),
+  },
+  {
+    path: 'registro',
+    component: CreateAccountComponent,
   },
 ];
 

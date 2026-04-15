@@ -1,22 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
 export class CrearCuentaService {
 
-  
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient) { }
 
-  crearCuenta(nombre: string, apellido1: string, apellido2: string, correo: string, contrasena: string) {
+  crearCuenta(nombre: string, apellido: string, correo: string, password: string) {
     const formData = {
-      nombre: nombre,
-      apellido: apellido1,
-      apellido2: apellido2,
-      correo: correo,
-      password: contrasena
+      nombre,
+      apellido,
+      correo,
+      password
     };
 
     return this.http.post<any>(`${environment.apiUrl}/usuarios/`, formData);
