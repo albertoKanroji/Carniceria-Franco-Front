@@ -12,11 +12,17 @@ import { environment } from 'src/environments/environment';
 })
 export class ProductosComponent implements OnInit {
 
+  private readonly adminBaseUrl = 'https://www.carniceriafrancoadmin.shop';
+
   categoriaSeleccionada: number | null = null;
   categoriaSeleccionadaNombre: string = 'Todos';
   busqueda: string = '';
   cargando: boolean = false;
   error: string | null = null;
+  modalDetalleAbierta: boolean = false;
+  cargandoDetalle: boolean = false;
+  errorDetalle: string | null = null;
+  productoDetalle: Producto | null = null;
 
   productos: Producto[] = [];
   categorias: Categoria[] = [];
@@ -134,8 +140,33 @@ export class ProductosComponent implements OnInit {
   }
 
   verDetalle(producto: Producto): void {
-    console.log('Ver detalle del producto:', producto);
-    // Aquí implementarías la navegación al detalle del producto
+    this.modalDetalleAbierta = true;
+    this.cargandoDetalle = true;
+    this.errorDetalle = null;
+    this.productoDetalle = null;
+
+    this.productosService.getProducto(producto.id).subscribe({
+      next: (response) => {
+        if (response.success && response.data && !Array.isArray(response.data) && !('current_page' in response.data)) {
+          this.productoDetalle = response.data as Producto;
+        } else {
+          this.errorDetalle = 'No se pudo obtener el detalle del producto.';
+        }
+        this.cargandoDetalle = false;
+      },
+      error: (error) => {
+        console.error('Error al obtener detalle del producto:', error);
+        this.errorDetalle = 'No se pudo obtener el detalle del producto. Intenta nuevamente.';
+        this.cargandoDetalle = false;
+      }
+    });
+  }
+
+  cerrarModalDetalle(): void {
+    this.modalDetalleAbierta = false;
+    this.cargandoDetalle = false;
+    this.errorDetalle = null;
+    this.productoDetalle = null;
   }
 
   generarEstrellas(calificacion: number): string[] {
@@ -158,9 +189,19 @@ export class ProductosComponent implements OnInit {
   }
 
   getImagenUrlFromProduct(producto: Producto): string {
-    // Si existe imagen_url, usarla directamente limpiando las barras invertidas
+    // Soporta rutas relativas como /storage/... o con barras escapadas.
     if (producto.imagen_url) {
-      return producto.imagen_url.replace(/\\/g, '');
+      const imagenUrl = producto.imagen_url.replace(/\\/g, '');
+
+      if (imagenUrl.startsWith('http')) {
+        return imagenUrl;
+      }
+
+      if (imagenUrl.startsWith('/')) {
+        return `${this.adminBaseUrl}${imagenUrl}`;
+      }
+
+      return `${this.adminBaseUrl}/${imagenUrl}`;
     }
 
     // Fallback al método original

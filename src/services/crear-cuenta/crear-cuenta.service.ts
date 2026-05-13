@@ -16,7 +16,7 @@ export class CrearCuentaService {
       password
     };
 
-    return this.http.post<any>(`${environment.apiUrl}/usuarios/`, formData);
+    return this.http.post<any>(`${environment.apiUrl}/clientes/registro`, formData);
   }
 
   handleCrearCuentaResponse(response: any) {

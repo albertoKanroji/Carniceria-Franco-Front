@@ -1,185 +1,199 @@
 <!-- Hero Section -->
-<div class="hero-section">
+<div class="home-market-wrap">
   <div class="container">
-    <div class="row align-items-center">
-      <div class="col-lg-6">
-        <div class="hero-content">
-          <h1 class="hero-title">CARNICERÍA FRANCO</h1>
-          <h2 class="hero-subtitle">Las mejores carnes frescas</h2>
+    <section class="hero-market">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="hero-chip">Frescura y calidad todos los dias</p>
+          <h1 class="hero-title">Carniceria Franco</h1>
           <p class="hero-description">
-            Descubre nuestra selección premium de carnes frescas,
-            directamente de productores locales a tu mesa.
+            Encuentra tus cortes favoritos, compara precios y agrega al carrito en minutos.
           </p>
-          <button class="btn-hero" (click)="verProductos()">
-            <i class="fas fa-shopping-basket me-2"></i>
-            Ver Productos
-          </button>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="hero-image">
-          <img src="https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=600"
-               alt="Carnes Premium" class="img-fluid rounded-custom">
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Filtros y Categorías -->
-<div class="filters-section">
-  <div class="container">
-    <div class="filters-container">
-      <h3 class="filters-title">Categorías</h3>
-      <div class="category-filters" *ngIf="!loadingCategorias">
-        <button 
-          class="filter-btn" 
+          <div class="hero-actions">
+            <button class="btn-hero-primary" (click)="verProductos()">
+              <i class="fas fa-store me-2"></i>Ir al catalogo
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-banner">
+          <img src="https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=1100" alt="Cortes premium de Carniceria Franco">
+        </div>
+      </div>
+    </section>
+
+    <section class="search-panel">
+      <div class="search-row">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          placeholder="Buscar por producto, codigo o categoria..."
+          [(ngModel)]="busqueda"
+          (keyup)="onBusquedaChange()"
+          (search)="onBusquedaChange()"
+        />
+      </div>
+
+      <div class="categories-row" *ngIf="!loadingCategorias">
+        <button
+          class="chip-btn"
           [class.active]="categoriaSeleccionada === null"
           (click)="filtrarPorCategoria(null)">
           Todos
         </button>
-        <button 
+        <button
           *ngFor="let categoria of categorias"
-          class="filter-btn" 
+          class="chip-btn"
           [class.active]="categoriaSeleccionada === categoria.id"
           (click)="filtrarPorCategoria(categoria.id)">
           {{ categoria.nombre }}
         </button>
       </div>
+
       <div class="text-center py-3" *ngIf="loadingCategorias">
-        <i class="fas fa-spinner fa-spin fa-2x" style="color: #D9BB84;"></i>
+        <i class="fas fa-spinner fa-spin fa-lg"></i>
       </div>
-    </div>
+    </section>
+
+    <section class="products-market">
+      <div class="products-header">
+        <div>
+          <h2>Productos destacados</h2>
+          <p>{{ productosFiltrados.length }} producto(s) disponibles</p>
+        </div>
+        <button class="btn-link-catalog" (click)="verProductos()">Ver catalogo completo</button>
+      </div>
+
+      <div class="text-center py-5" *ngIf="loading">
+        <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+        <p>Cargando productos...</p>
+      </div>
+
+      <div class="text-center py-5" *ngIf="!loading && productosFiltrados.length === 0">
+        <i class="fas fa-box-open fa-3x mb-2"></i>
+        <h3>No hay productos para esta seleccion</h3>
+      </div>
+
+      <div class="row g-3" *ngIf="!loading && productosFiltrados.length > 0">
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6" *ngFor="let producto of productosFiltrados">
+          <article class="market-card">
+            <div class="market-card-image">
+              <img [src]="getImagenProducto(producto)" [alt]="producto.nombre" class="img-fluid">
+              <span class="market-badge" *ngIf="producto.en_oferta">Oferta</span>
+            </div>
+
+            <div class="market-card-body">
+              <p class="market-category">{{ producto.category?.nombre || 'Sin categoria' }}</p>
+              <h4 class="market-name">{{ producto.nombre }}</h4>
+              <p class="market-description">{{ producto.descripcion || 'Producto de calidad premium' }}</p>
+
+              <div class="market-meta">
+                <span class="meta-stock" [class.no-stock]="!tieneStock(producto)">
+                  <i class="fas fa-box me-1"></i>
+                  {{ tieneStock(producto) ? ('Stock: ' + producto.stock) : 'Sin stock' }}
+                </span>
+                <span class="meta-unit">{{ producto.unidad_venta || 'pieza' }}</span>
+              </div>
+
+              <div class="market-pricing">
+                <span class="price-main">${{ getPrecioFinal(producto).toFixed(2) }}</span>
+                <span class="price-old" *ngIf="producto.en_oferta && producto.precio_oferta">
+                  ${{ getPrecioBase(producto).toFixed(2) }}
+                </span>
+              </div>
+
+              <div class="market-actions">
+                <button class="btn-card-outline" (click)="verDetalle(producto)">
+                  <i class="fas fa-eye me-1"></i>Ver
+                </button>
+                <button class="btn-card-primary" [disabled]="!tieneStock(producto)" (click)="agregarAlCarrito(producto)">
+                  <i class="fas fa-cart-plus me-1"></i>Agregar
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip">
+      <div class="trust-item">
+        <i class="fas fa-truck-fast"></i>
+        <span>Entrega rapida</span>
+      </div>
+      <div class="trust-item">
+        <i class="fas fa-award"></i>
+        <span>Calidad premium</span>
+      </div>
+      <div class="trust-item">
+        <i class="fas fa-snowflake"></i>
+        <span>Cadena de frio</span>
+      </div>
+      <div class="trust-item">
+        <i class="fas fa-shield-alt"></i>
+        <span>Compra segura</span>
+      </div>
+    </section>
   </div>
 </div>
 
-<!-- Productos Grid -->
-<div class="products-section">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">Nuestros Productos</h2>
-      <p class="section-subtitle">Calidad premium garantizada</p>
+<!-- Modal de detalle de producto -->
+<div class="product-modal-backdrop" *ngIf="modalDetalleAbierta" (click)="cerrarModalDetalle()">
+  <div class="product-modal" (click)="$event.stopPropagation()">
+    <button class="product-modal-close" (click)="cerrarModalDetalle()" aria-label="Cerrar detalle">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="product-modal-loading" *ngIf="cargandoDetalle">
+      <div class="spinner-border" role="status" style="width: 2.5rem; height: 2.5rem;">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-3">Cargando detalle del producto...</p>
     </div>
 
-    <!-- Loader -->
-    <div class="text-center py-5" *ngIf="loading">
-      <i class="fas fa-spinner fa-spin fa-3x mb-3" style="color: #D9BB84;"></i>
-      <p style="color: #59514F; font-size: 1.2rem;">Cargando productos...</p>
+    <div class="product-modal-error" *ngIf="errorDetalle && !cargandoDetalle">
+      <i class="fas fa-exclamation-circle"></i>
+      <p>{{ errorDetalle }}</p>
+      <button class="btn btn-primary" (click)="cerrarModalDetalle()">Cerrar</button>
     </div>
 
-    <!-- Sin productos -->
-    <div class="text-center py-5" *ngIf="!loading && productosFiltrados.length === 0">
-      <i class="fas fa-box-open fa-4x mb-3" style="color: #D9BB84; opacity: 0.3;"></i>
-      <h3 style="color: #59514F;">No hay productos disponibles</h3>
-      <p class="text-muted">Intenta con otra categoría</p>
-    </div>
-
-    <!-- Grid de productos -->
-    <div class="row g-4" *ngIf="!loading && productosFiltrados.length > 0">
-      <div class="col-lg-3 col-md-4 col-sm-6" *ngFor="let producto of productosFiltrados">
-        <div class="product-card">
-          <!-- Badge de oferta -->
-          <div class="product-badge" *ngIf="producto.en_oferta">
-            <span class="badge-oferta">OFERTA</span>
-          </div>
-
-          <!-- Badge de stock -->
-          <div class="product-stock-badge" *ngIf="producto.stock === 0">
-            <span class="badge-agotado">AGOTADO</span>
-          </div>
-
-          <!-- Imagen del producto -->
-          <div class="product-image">
-            <img [src]="getImagenProducto(producto.imagen)" [alt]="producto.nombre" class="img-fluid">
-            <div class="product-overlay">
-              <button class="btn-quick-view" (click)="verDetalle(producto)">
-                <i class="fas fa-search-plus"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Información del producto -->
-          <div class="product-info">
-            <div class="product-category">{{ producto.category?.nombre || 'Sin categoría' }}</div>
-            <h4 class="product-name">{{ producto.nombre }}</h4>
-            <p class="product-description">{{ producto.descripcion || 'Producto de calidad premium' }}</p>
-
-            <!-- Unidad de venta -->
-            <div class="product-weight">
-              <i class="fas fa-weight me-2"></i>
-              <span>Por {{ producto.unidad_venta }}</span>
-            </div>
-
-            <!-- Calificación -->
-            <div class="product-rating">
-              <i *ngFor="let estrella of generarEstrellas(producto)"
-                 [class]="estrella"></i>
-              <span class="rating-text">({{ getCalificacion(producto) }}.0)</span>
-            </div>
-
-            <!-- Precios -->
-            <div class="product-pricing">
-              <span class="price-current">${{ (producto.precio_final || producto.precio_oferta || producto.precio).toFixed(2) }}</span>
-              <span class="price-original" *ngIf="producto.en_oferta && producto.precio_oferta">
-                ${{ producto.precio.toFixed(2) }}
-              </span>
-            </div>
-
-            <!-- Botón agregar al carrito -->
-            <button
-              class="btn-add-cart"
-              [disabled]="producto.stock === 0"
-              (click)="agregarAlCarrito(producto)">
-              <i class="fas fa-shopping-cart me-2"></i>
-              <span *ngIf="producto.stock > 0">Agregar al Carrito</span>
-              <span *ngIf="producto.stock === 0">No Disponible</span>
-            </button>
-          </div>
-        </div>
+    <div class="product-modal-content" *ngIf="productoDetalle && !cargandoDetalle && !errorDetalle">
+      <div class="product-modal-image">
+        <img [src]="getImagenProducto(productoDetalle)" [alt]="productoDetalle.nombre" class="img-fluid">
       </div>
-    </div>
-  </div>
-</div>
 
-<!-- Sección de Características -->
-<div class="features-section">
-  <div class="container">
-    <div class="row g-4">
-      <div class="col-lg-3 col-md-6">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-truck"></i>
+      <div class="product-modal-info">
+        <span class="modal-category">{{ productoDetalle.category?.nombre || 'Sin categoria' }}</span>
+        <h3>{{ productoDetalle.nombre }}</h3>
+        <p class="modal-code">Codigo: {{ productoDetalle.codigo || 'N/A' }}</p>
+        <p class="modal-description">{{ productoDetalle.descripcion || 'Producto premium seleccionado por su excelente calidad.' }}</p>
+
+        <div class="modal-meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Precio</span>
+            <span class="meta-value price">${{ getPrecioFinal(productoDetalle).toFixed(2) }}</span>
           </div>
-          <h5 class="feature-title">Entrega Rápida</h5>
-          <p class="feature-description">Delivery en menos de 2 horas</p>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-medal"></i>
+          <div class="meta-item">
+            <span class="meta-label">Unidad</span>
+            <span class="meta-value">{{ productoDetalle.unidad_venta || 'pieza' }}</span>
           </div>
-          <h5 class="feature-title">Calidad Premium</h5>
-          <p class="feature-description">Carnes frescas certificadas</p>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-refrigerator"></i>
+          <div class="meta-item">
+            <span class="meta-label">Stock</span>
+            <span class="meta-value" [class.out-of-stock]="!tieneStock(productoDetalle)">
+              {{ tieneStock(productoDetalle) ? (productoDetalle.stock + ' disponibles') : 'Sin stock' }}
+            </span>
           </div>
-          <h5 class="feature-title">Cadena de Frío</h5>
-          <p class="feature-description">Conservación perfecta garantizada</p>
         </div>
-      </div>
-      <div class="col-lg-3 col-md-6">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-shield-alt"></i>
-          </div>
-          <h5 class="feature-title">100% Seguro</h5>
-          <p class="feature-description">Compra protegida y confiable</p>
-        </div>
+
+        <button
+          class="btn-card-primary modal-add-cart"
+          [disabled]="!tieneStock(productoDetalle)"
+          (click)="agregarAlCarrito(productoDetalle)">
+          <i class="fas fa-cart-plus me-1"></i>
+          <span *ngIf="tieneStock(productoDetalle)">Agregar al carrito</span>
+          <span *ngIf="!tieneStock(productoDetalle)">No disponible</span>
+        </button>
       </div>
     </div>
   </div>
