@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CategoriasService, Categoria } from 'src/services/categorias/categorias.service';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-categorias',
@@ -9,6 +8,9 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./categorias.component.css']
 })
 export class CategoriasComponent implements OnInit {
+
+  private readonly adminBaseUrl = 'https://www.carniceriafrancoadmin.shop';
+  private readonly defaultCategoryImage = 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=500';
 
   categorias: Categoria[] = [];
   cargando: boolean = false;
@@ -56,13 +58,33 @@ export class CategoriasComponent implements OnInit {
 
   getImagenUrl(imagen: string | null): string {
     if (!imagen) {
-      return 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=500';
+      return this.defaultCategoryImage;
     }
-    // Si la imagen es una URL completa, usarla directamente
-    if (imagen.startsWith('http')) {
-      return imagen;
+
+    const imagenLimpia = imagen.replace(/\\/g, '');
+
+    // Si la imagen es una URL completa, usarla directamente.
+    if (imagenLimpia.startsWith('http')) {
+      return imagenLimpia;
     }
-    // Si es una ruta relativa del backend, construir URL completa
-    return `${environment.apiUrl.replace('/api/v1', '')}/${imagen}`;
+
+    // Si viene como /storage/... o storage/..., anexar dominio.
+    if (imagenLimpia.startsWith('/storage/')) {
+      return `${this.adminBaseUrl}${imagenLimpia}`;
+    }
+
+    if (imagenLimpia.startsWith('storage/')) {
+      return `${this.adminBaseUrl}/${imagenLimpia}`;
+    }
+
+    // Si viene solo el nombre de archivo, usar carpeta de categorias.
+    return `${this.adminBaseUrl}/storage/categories/${imagenLimpia}`;
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img && img.src !== this.defaultCategoryImage) {
+      img.src = this.defaultCategoryImage;
+    }
   }
 }
