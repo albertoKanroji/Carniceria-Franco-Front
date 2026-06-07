@@ -404,10 +404,20 @@
                   <span class="total-value">${{ formatMoney(compra.total) }}</span>
                 </div>
               </div>
-              <button class="btn-ver-detalle" (click)="verDetalleCompra(compra.id)">
-                <i class="fas fa-eye me-2"></i>
-                Ver Detalle
-              </button>
+              <div class="compra-actions">
+                <button
+                  class="btn-subir-evidencia"
+                  *ngIf="esTransferenciaPendiente(compra)"
+                  (click)="abrirModalEvidencia(compra)">
+                  <i class="fas fa-file-upload me-2"></i>
+                  Subir Evidencia
+                </button>
+
+                <button class="btn-ver-detalle" (click)="verDetalleCompra(compra.id)">
+                  <i class="fas fa-eye me-2"></i>
+                  Ver Detalle
+                </button>
+              </div>
             </div>
 
             <!-- Notas -->
@@ -521,6 +531,53 @@
             <div class="detalle-notas" *ngIf="compraSeleccionada.notas">
               <h4 class="detalle-section-title">Notas</h4>
               <p>{{ compraSeleccionada.notas }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Subir Evidencia de Transferencia -->
+      <div class="modal-overlay" *ngIf="mostrandoModalEvidencia" (click)="cerrarModalEvidencia()">
+        <div class="modal-detalle modal-evidencia" (click)="$event.stopPropagation()">
+          <div class="modal-header-custom modal-header-evidencia">
+            <h3>
+              <i class="fas fa-file-upload me-2"></i>
+              Subir Evidencia de Transferencia
+            </h3>
+            <button class="btn-close-modal" (click)="cerrarModalEvidencia()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="modal-body-custom">
+            <div class="evidencia-info" *ngIf="compraEvidenciaSeleccionada">
+              <span><strong>Folio:</strong> {{ compraEvidenciaSeleccionada.folio }}</span>
+              <span><strong>Total:</strong> ${{ formatMoney(compraEvidenciaSeleccionada.total) }}</span>
+            </div>
+
+            <label for="evidenciaTransferencia" class="dropzone-evidencia">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <span class="dropzone-title">Selecciona tu comprobante</span>
+              <span class="dropzone-subtitle">Formatos permitidos: JPG, PNG o PDF (max. 5MB)</span>
+              <span class="archivo-seleccionado" *ngIf="nombreArchivoEvidencia">{{ nombreArchivoEvidencia }}</span>
+            </label>
+
+            <input
+              id="evidenciaTransferencia"
+              class="input-evidencia"
+              type="file"
+              accept=".jpg,.jpeg,.png,.pdf"
+              (change)="onArchivoEvidenciaSeleccionado($event)">
+
+            <div class="evidencia-actions">
+              <button class="btn-cancelar-evidencia" (click)="cerrarModalEvidencia()" [disabled]="subiendoEvidencia">
+                Cancelar
+              </button>
+              <button class="btn-subir-confirmar" (click)="subirEvidenciaTransferencia()" [disabled]="subiendoEvidencia || !archivoEvidencia">
+                <i class="fas fa-circle-notch fa-spin me-2" *ngIf="subiendoEvidencia"></i>
+                <i class="fas fa-check me-2" *ngIf="!subiendoEvidencia"></i>
+                {{ subiendoEvidencia ? 'Subiendo...' : 'Subir Evidencia' }}
+              </button>
             </div>
           </div>
         </div>

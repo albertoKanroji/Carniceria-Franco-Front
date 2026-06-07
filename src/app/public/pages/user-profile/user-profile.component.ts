@@ -36,6 +36,12 @@ export class UserProfileComponent implements OnInit {
   // Detalle de compra seleccionada
   compraSeleccionada: Venta | null = null;
   mostrandoDetalle = false;
+  // Evidencia de transferencia
+  mostrandoModalEvidencia = false;
+  compraEvidenciaSeleccionada: Venta | null = null;
+  archivoEvidencia: File | null = null;
+  nombreArchivoEvidencia = '';
+  subiendoEvidencia = false;
   // Recomendaciones
   recomendaciones: CarritoRecomendado[] = [];
   datosRecomendaciones: any = null;
@@ -162,6 +168,96 @@ export class UserProfileComponent implements OnInit {
       case 'credito': return 'fa-file-invoice-dollar';
       default: return 'fa-dollar-sign';
     }
+  }
+
+  esTransferenciaPendiente(compra: Venta): boolean {
+    const metodoPago = (compra?.metodo_pago || '').toLowerCase().trim();
+    const estatus = (compra?.estatus || '').toLowerCase().trim();
+    return metodoPago === 'transferencia' && estatus === 'pendiente';
+  }
+
+  abrirModalEvidencia(compra: Venta) {
+    this.compraEvidenciaSeleccionada = compra;
+    this.archivoEvidencia = null;
+    this.nombreArchivoEvidencia = '';
+    this.subiendoEvidencia = false;
+    this.mostrandoModalEvidencia = true;
+  }
+
+  cerrarModalEvidencia() {
+    this.mostrandoModalEvidencia = false;
+    this.compraEvidenciaSeleccionada = null;
+    this.archivoEvidencia = null;
+    this.nombreArchivoEvidencia = '';
+    this.subiendoEvidencia = false;
+  }
+
+  onArchivoEvidenciaSeleccionado(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length > 0 ? input.files[0] : null;
+
+    if (!file) {
+      this.archivoEvidencia = null;
+      this.nombreArchivoEvidencia = '';
+      return;
+    }
+
+    const tiposPermitidos = ['image/jpeg', 'image/png', 'application/pdf'];
+    const tamanoMaximoBytes = 5 * 1024 * 1024;
+
+    if (!tiposPermitidos.includes(file.type)) {
+      this.toastr.warning('Solo se permite JPG, PNG o PDF', 'Archivo no valido');
+      input.value = '';
+      this.archivoEvidencia = null;
+      this.nombreArchivoEvidencia = '';
+      return;
+    }
+
+    if (file.size > tamanoMaximoBytes) {
+      this.toastr.warning('El archivo excede 5MB', 'Archivo demasiado grande');
+      input.value = '';
+      this.archivoEvidencia = null;
+      this.nombreArchivoEvidencia = '';
+      return;
+    }
+
+    this.archivoEvidencia = file;
+    this.nombreArchivoEvidencia = file.name;
+  }
+
+  subirEvidenciaTransferencia() {
+    if (!this.compraEvidenciaSeleccionada?.id) {
+      this.toastr.error('No se identifico la compra para subir evidencia', 'Error');
+      return;
+    }
+
+    if (!this.archivoEvidencia) {
+      this.toastr.warning('Selecciona un archivo antes de continuar', 'Archivo requerido');
+      return;
+    }
+
+    this.subiendoEvidencia = true;
+    this.ventasService
+      .subirEvidenciaTransferencia(this.compraEvidenciaSeleccionada.id, this.archivoEvidencia)
+      .pipe(
+        catchError(err => {
+          console.error('Error al subir evidencia:', err);
+          this.toastr.error('No se pudo subir la evidencia', 'Error');
+          this.subiendoEvidencia = false;
+          return of(null);
+        })
+      )
+      .subscribe(response => {
+        if (response?.success) {
+          this.toastr.success('Evidencia subida correctamente', 'Transferencia');
+          this.cerrarModalEvidencia();
+          this.loadCompras();
+          return;
+        }
+
+        this.toastr.warning(response?.message || 'No se pudo subir la evidencia', 'Aviso');
+        this.subiendoEvidencia = false;
+      });
   }
 
   // Helper para convertir string a número

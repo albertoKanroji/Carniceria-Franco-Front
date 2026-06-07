@@ -37,6 +37,7 @@ export class LoginService {
     localStorage.setItem('clienteApellidoPaterno', response.data.cliente.apellido);
     localStorage.setItem('clienteTelefono', response.data.cliente.telefono || '');
     localStorage.setItem('clienteTipoCliente', response.data.cliente.tipo_cliente);
+    localStorage.setItem('clienteDescuentoPreferencial', response.data.cliente.descuento_preferencial);
     localStorage.setItem('clienteSaldo', response.data.cliente.saldo_cuenta);
     this.authService.setLoggedIn(true);
     this.router.navigate(['/']);

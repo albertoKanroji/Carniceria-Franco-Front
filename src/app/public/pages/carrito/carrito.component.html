@@ -170,11 +170,19 @@
       <!-- Resumen del pedido -->
       <div class="col-lg-4">
         <div class="summary-card sticky-top" style="top: 20px;">
-          <h3 class="summary-title">Resumen del Pedido</h3>
+          <h3 class="summary-title d-flex align-items-center justify-content-between gap-2">
+            <span>Resumen del Pedido</span>
+            <span class="badge-tipo-cliente">{{ tipoClienteDisplay }}</span>
+          </h3>
 
           <div class="summary-item">
             <span>Subtotal ({{ itemsCarrito.length }} productos)</span>
-            <span>${{ subtotal.toFixed(2) }}</span>
+            <span>${{ subtotalSinDescuento.toFixed(2) }}</span>
+          </div>
+
+          <div class="summary-item descuento" *ngIf="descuentoPorcentajeAplicable > 0">
+            <span>Descuento ({{ descuentoPorcentajeAplicable.toFixed(2) }}%)</span>
+            <span>-${{ descuentoMonto.toFixed(2) }}</span>
           </div>
 
           <div class="summary-item">
@@ -189,107 +197,97 @@
             <span>${{ total.toFixed(2) }}</span>
           </div>
 
-          <!-- Selector de método de pago -->
-          <div class="payment-method-selector mt-3">
-            <h4 class="payment-title">Método de Pago</h4>
-            <div class="payment-options">
-              <label class="payment-option">
-                <input type="radio" name="metodoPago" value="efectivo" [(ngModel)]="metodoPago">
-                <span class="payment-label">
-                  <i class="fas fa-money-bill-wave"></i>
-                  Efectivo
-                </span>
-              </label>
-
-              <label class="payment-option">
-                <input type="radio" name="metodoPago" value="tarjeta" [(ngModel)]="metodoPago">
-                <span class="payment-label">
-                  <i class="fas fa-credit-card"></i>
-                  Tarjeta
-                </span>
-              </label>
-
-              <label class="payment-option">
-                <input type="radio" name="metodoPago" value="transferencia" [(ngModel)]="metodoPago">
-                <span class="payment-label">
-                  <i class="fas fa-university"></i>
-                  Transferencia
-                </span>
-              </label>
-
-              <label class="payment-option">
-                <input type="radio" name="metodoPago" value="credito" [(ngModel)]="metodoPago">
-                <span class="payment-label">
-                  <i class="fas fa-file-invoice-dollar"></i>
-                  Crédito
-                </span>
-              </label>
-
-              <label class="payment-option mercado-pago-option">
-                <input type="radio" name="metodoPago" value="mercado_pago" [(ngModel)]="metodoPago">
-                <span class="payment-label">
-                  <i class="fas fa-shopping-cart"></i>
-                  Mercado Pago
-                  <span class="badge-nuevo">Nuevo</span>
-                </span>
-              </label>
+          <div *ngIf="fueraDeHorarioAtencion" class="horario-cerrado-banner mt-3">
+            <div class="cerrado-icono">
+              <i class="fas fa-store-slash"></i>
+            </div>
+            <div class="cerrado-contenido">
+              <h4>Cerrado por horario de atención</h4>
+              <p>
+                {{ diaAtencionHoy }}: {{ horarioAtencionHoy }}
+              </p>
             </div>
           </div>
 
-          <button
-            class="btn-checkout"
-            (click)="procederPago()"
-            [disabled]="procesandoPago">
-            <i *ngIf="!procesandoPago" class="fas fa-lock me-2"></i>
-            <i *ngIf="procesandoPago" class="fas fa-spinner fa-spin me-2"></i>
-            <span *ngIf="metodoPago !== 'mercado_pago'">
-              {{ procesandoPago ? 'Procesando...' : 'Proceder al Pago' }}
-            </span>
-            <span *ngIf="metodoPago === 'mercado_pago'">
-              {{ procesandoPago ? 'Redirigiendo...' : 'Pagar con Mercado Pago' }}
-            </span>
-          </button>
+          <ng-container *ngIf="!fueraDeHorarioAtencion">
+            <!-- Selector de método de pago -->
+            <div class="payment-method-selector mt-3">
+              <h4 class="payment-title">Método de Pago</h4>
+              <div class="payment-options">
+                <label class="payment-option">
+                  <input type="radio" name="metodoPago" value="transferencia" [(ngModel)]="metodoPago">
+                  <span class="payment-label">
+                    <i class="fas fa-university"></i>
+                    Transferencia
+                  </span>
+                </label>
 
-          <button class="btn-continue-shopping" (click)="continuarComprando()">
-            <i class="fas fa-arrow-left me-2"></i>
-            Continuar Comprando
-          </button>
-
-          <button
-            class="btn-clear-cart"
-            (click)="vaciarCarrito()"
-            [disabled]="vaciandoCarrito">
-            <i *ngIf="!vaciandoCarrito" class="fas fa-trash-alt me-2"></i>
-            <i *ngIf="vaciandoCarrito" class="fas fa-spinner fa-spin me-2"></i>
-            {{ vaciandoCarrito ? 'Vaciando...' : 'Vaciar Carrito' }}
-          </button>
-
-          <!-- Información adicional -->
-          <div class="info-boxes mt-3">
-            <div class="info-box">
-              <i class="fas fa-truck"></i>
-              <div>
-                <strong>Envío gratis</strong>
-                <p>En compras mayores a $500</p>
+                <label class="payment-option mercado-pago-option">
+                  <input type="radio" name="metodoPago" value="mercado_pago" [(ngModel)]="metodoPago">
+                  <span class="payment-label">
+                    <i class="fas fa-shopping-cart"></i>
+                    Mercado Pago
+                    <span class="badge-nuevo">Nuevo</span>
+                  </span>
+                </label>
               </div>
             </div>
 
-            <div class="info-box">
-              <i class="fas fa-shield-alt"></i>
-              <div>
-                <strong>Compra segura</strong>
-                <p>Tus datos están protegidos</p>
-              </div>
-            </div>
+            <button
+              class="btn-checkout"
+              (click)="procederPago()"
+              [disabled]="!puedeProcederPago">
+              <i *ngIf="!procesandoPago" class="fas fa-lock me-2"></i>
+              <i *ngIf="procesandoPago" class="fas fa-spinner fa-spin me-2"></i>
+              <span *ngIf="metodoPago !== 'mercado_pago'">
+                {{ procesandoPago ? 'Procesando...' : 'Proceder al Pago' }}
+              </span>
+              <span *ngIf="metodoPago === 'mercado_pago'">
+                {{ procesandoPago ? 'Redirigiendo...' : 'Pagar con Mercado Pago' }}
+              </span>
+            </button>
 
-            <div class="info-box" *ngIf="metodoPago === 'mercado_pago'">
-              <i class="fas fa-credit-card" style="color: #00a8ff;"></i>
-              <div>
-                <strong>Mercado Pago</strong>
-                <p>Paga con tarjeta, efectivo o transferencia</p>
+            <button class="btn-continue-shopping" (click)="continuarComprando()">
+              <i class="fas fa-arrow-left me-2"></i>
+              Continuar Comprando
+            </button>
+
+            <button
+              class="btn-clear-cart"
+              (click)="vaciarCarrito()"
+              [disabled]="vaciandoCarrito">
+              <i *ngIf="!vaciandoCarrito" class="fas fa-trash-alt me-2"></i>
+              <i *ngIf="vaciandoCarrito" class="fas fa-spinner fa-spin me-2"></i>
+              {{ vaciandoCarrito ? 'Vaciando...' : 'Vaciar Carrito' }}
+            </button>
+
+            <!-- Información adicional -->
+            <div class="info-boxes mt-3">
+              <div class="info-box">
+                <i class="fas fa-truck"></i>
+                <div>
+                  <strong>Envío gratis</strong>
+                  <p>En compras mayores a $500</p>
+                </div>
+              </div>
+
+              <div class="info-box">
+                <i class="fas fa-shield-alt"></i>
+                <div>
+                  <strong>Compra segura</strong>
+                  <p>Tus datos están protegidos</p>
+                </div>
+              </div>
+
+              <div class="info-box" *ngIf="metodoPago === 'mercado_pago'">
+                <i class="fas fa-credit-card" style="color: #00a8ff;"></i>
+                <div>
+                  <strong>Mercado Pago</strong>
+                  <p>Paga con tarjeta, efectivo o transferencia</p>
+                </div>
               </div>
             </div>
-          </div>
+          </ng-container>
         </div>
       </div>
     </div>
@@ -335,6 +333,10 @@
         <div class="detail-row mt-3">
           <span><i class="fas fa-credit-card me-2"></i>Método de pago:</span>
           <strong>{{ getTextoMetodoPago() }}</strong>
+        </div>
+        <div class="detail-row" *ngIf="descuentoPorcentajeAplicable > 0">
+          <span><i class="fas fa-percentage me-2"></i>Descuento aplicado:</span>
+          <strong>-{{ descuentoPorcentajeAplicable.toFixed(2) }}% (${{ descuentoMonto.toFixed(2) }})</strong>
         </div>
         <div class="detail-row total-row">
           <span><i class="fas fa-dollar-sign me-2"></i>Total a pagar:</span>

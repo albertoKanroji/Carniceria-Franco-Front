@@ -196,6 +196,13 @@ export interface RecomendacionesResponse {
   };
 }
 
+export interface SubirEvidenciaTransferenciaResponse {
+  success: boolean;
+  status: number;
+  message: string;
+  data?: any;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -282,5 +289,18 @@ export class VentasService {
    */
   obtenerRecomendaciones(customerId: number): Observable<RecomendacionesResponse> {
     return this.http.get<RecomendacionesResponse>(`${this.apiUrl}/ventas/cliente/${customerId}/recomendaciones`);
+  }
+
+  /**
+   * Subir evidencia de transferencia para una venta
+   */
+  subirEvidenciaTransferencia(saleId: number, archivo: File): Observable<SubirEvidenciaTransferenciaResponse> {
+    const formData = new FormData();
+    formData.append('evidencia', archivo);
+
+    return this.http.post<SubirEvidenciaTransferenciaResponse>(
+      `${this.apiUrl}/ventas/${saleId}/evidencia-transferencia`,
+      formData
+    );
   }
 }

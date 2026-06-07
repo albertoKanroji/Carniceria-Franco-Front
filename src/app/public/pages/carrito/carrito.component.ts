@@ -1,25 +1,34 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CarritoService, ItemCarrito } from 'src/services/carrito/carrito.service';
 import { VentasService, CrearVentaRequest } from 'src/services/ventas/ventas.service';
 import { MercadoPagoService, PreferenceData } from 'src/services/mercadopago/mercadopago.service';
 import { AuthService } from 'src/services/auth-service/auth-service.service';
+import { SitioConfigService } from 'src/services/sitio-config/sitio-config.service';
 import { environment } from 'src/environments/environment';
 import { ToastrService } from 'ngx-toastr';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-carrito',
   templateUrl: './carrito.component.html',
   styleUrls: ['./carrito.component.css']
 })
-export class CarritoComponent implements OnInit {
+export class CarritoComponent implements OnInit, OnDestroy {
 
   itemsCarrito: ItemCarrito[] = [];
   itemsSeleccionados: Set<number> = new Set();
   todoSeleccionado: boolean = false;
   procesandoPago: boolean = false;
-  metodoPago: 'efectivo' | 'tarjeta' | 'transferencia' | 'credito' | 'mercado_pago' = 'tarjeta';
+  metodoPago: 'efectivo' | 'tarjeta' | 'transferencia' | 'credito' | 'mercado_pago' | null = null;
   notasCompra: string = '';
+  clienteTipoCliente: string = '';
+  clienteDescuentoPreferencial: number = 0;
+  estaAbiertoAtencion: boolean = true;
+  horarioAtencionHoy: string = 'No disponible';
+  diaAtencionHoy: string = 'hoy';
+  private horariosAtencion: Record<string, string | undefined> = {};
+  private evaluacionHorarioIntervaloId: ReturnType<typeof setInterval> | null = null;
 
   // Modales
   mostrarModalConfirmacion: boolean = false;
@@ -38,12 +47,50 @@ export class CarritoComponent implements OnInit {
     private ventasService: VentasService,
     private mercadoPagoService: MercadoPagoService,
     private authService: AuthService,
+    private sitioConfigService: SitioConfigService,
     private router: Router,
     private toastr: ToastrService
   ) { }
 
   ngOnInit(): void {
     this.cargarCarrito();
+    this.cargarPreferenciasCliente();
+    this.cargarHorarioAtencion();
+  }
+
+  ngOnDestroy(): void {
+    if (this.evaluacionHorarioIntervaloId) {
+      clearInterval(this.evaluacionHorarioIntervaloId);
+      this.evaluacionHorarioIntervaloId = null;
+    }
+  }
+
+  get fueraDeHorarioAtencion(): boolean {
+    return !this.estaAbiertoAtencion;
+  }
+
+  get puedeProcederPago(): boolean {
+    return !this.procesandoPago && !!this.metodoPago && !this.fueraDeHorarioAtencion;
+  }
+
+  get tipoClienteDisplay(): string {
+    if (!this.clienteTipoCliente) {
+      return 'General';
+    }
+
+    return this.clienteTipoCliente
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
+      .join(' ');
+  }
+
+  get esMayorista(): boolean {
+    return this.clienteTipoCliente.toLowerCase() === 'mayorista';
+  }
+
+  get descuentoPorcentajeAplicable(): number {
+    return this.esMayorista ? this.clienteDescuentoPreferencial : 0;
   }
 
   cargarCarrito(): void {
@@ -53,8 +100,18 @@ export class CarritoComponent implements OnInit {
     });
   }
 
-  get subtotal(): number {
+  get subtotalSinDescuento(): number {
     return this.itemsCarrito.reduce((total, item) => total + Number(item.subtotal || 0), 0);
+  }
+
+  get descuentoMonto(): number {
+    const monto = this.subtotalSinDescuento * (this.descuentoPorcentajeAplicable / 100);
+    return Number(monto.toFixed(2));
+  }
+
+  get subtotal(): number {
+    const subtotalConDescuento = this.subtotalSinDescuento - this.descuentoMonto;
+    return subtotalConDescuento > 0 ? subtotalConDescuento : 0;
   }
 
   get iva(): number {
@@ -208,6 +265,16 @@ export class CarritoComponent implements OnInit {
   }
 
   procederPago(): void {
+    if (this.fueraDeHorarioAtencion) {
+      this.toastr.warning(`Horario de atención cerrado (${this.horarioAtencionHoy})`, 'No disponible');
+      return;
+    }
+
+    if (!this.metodoPago) {
+      this.toastr.warning('Selecciona un método de pago para continuar', 'Método requerido');
+      return;
+    }
+
     if (this.itemsCarrito.length === 0) {
       this.toastr.warning('Tu carrito está vacío', 'Carrito Vacío');
       return;
@@ -228,6 +295,11 @@ export class CarritoComponent implements OnInit {
   }
 
   confirmarCompra(): void {
+    if (!this.metodoPago) {
+      this.toastr.warning('Selecciona un método de pago para continuar', 'Método requerido');
+      return;
+    }
+
     const customerId = this.authService.getUserId();
     if (customerId) {
       console.log('=== DEBUG: Confirmando compra ===');
@@ -270,7 +342,7 @@ export class CarritoComponent implements OnInit {
         return producto;
       }),
       metodo_pago: 'mercado_pago',
-      descuento: 0,
+      descuento: this.descuentoPorcentajeAplicable,
       notas: this.notasCompra || undefined
     };
 
@@ -312,7 +384,7 @@ export class CarritoComponent implements OnInit {
     const ventaRequest: CrearVentaRequest = {
       customer_id: customerId,
       metodo_pago: this.metodoPago as 'efectivo' | 'tarjeta' | 'transferencia' | 'credito',
-      descuento: 0,
+      descuento: this.descuentoPorcentajeAplicable,
       notas: this.notasCompra || undefined,
       productos: this.itemsCarrito.map(item => {
         const producto: any = {
@@ -432,8 +504,94 @@ export class CarritoComponent implements OnInit {
       case 'transferencia': return '🏦 Transferencia';
       case 'credito': return '📄 Crédito';
       case 'mercado_pago': return '🛒 Mercado Pago';
-      default: return 'Método de pago';
+      default: return 'No seleccionado';
     }
+  }
+
+  private cargarHorarioAtencion(): void {
+    this.sitioConfigService.obtenerConfiguracion().pipe(take(1)).subscribe((config) => {
+      this.horariosAtencion = config?.horarios || {};
+      this.evaluarHorarioActual(this.horariosAtencion);
+
+      if (!this.evaluacionHorarioIntervaloId) {
+        this.evaluacionHorarioIntervaloId = setInterval(() => {
+          this.evaluarHorarioActual(this.horariosAtencion);
+        }, 60000);
+      }
+    });
+  }
+
+  private cargarPreferenciasCliente(): void {
+    const tipoClienteStorage = (localStorage.getItem('clienteTipoCliente') || '').trim();
+    const descuentoStorage = localStorage.getItem('clienteDescuentoPreferencial') || '0';
+
+    this.clienteTipoCliente = tipoClienteStorage;
+
+    const descuento = Number(descuentoStorage);
+    if (!Number.isNaN(descuento) && descuento > 0) {
+      this.clienteDescuentoPreferencial = descuento;
+    } else {
+      this.clienteDescuentoPreferencial = 0;
+    }
+  }
+
+  private evaluarHorarioActual(horarios: Record<string, string | undefined>): void {
+    const ahora = new Date();
+    const diasOrdenados = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+    const etiquetas: Record<string, string> = {
+      lunes: 'Lunes',
+      martes: 'Martes',
+      miercoles: 'Miércoles',
+      jueves: 'Jueves',
+      viernes: 'Viernes',
+      sabado: 'Sábado',
+      domingo: 'Domingo'
+    };
+
+    const diaClave = diasOrdenados[ahora.getDay()];
+    const horarioDelDia = (horarios?.[diaClave] || 'Cerrado').trim();
+
+    this.diaAtencionHoy = etiquetas[diaClave] || 'Hoy';
+    this.horarioAtencionHoy = horarioDelDia;
+
+    const rango = this.parsearHorario(horarioDelDia);
+    if (!rango) {
+      this.estaAbiertoAtencion = false;
+      return;
+    }
+
+    const minutosActuales = (ahora.getHours() * 60) + ahora.getMinutes();
+    this.estaAbiertoAtencion = minutosActuales >= rango.inicio && minutosActuales <= rango.fin;
+  }
+
+  private parsearHorario(horario: string): { inicio: number; fin: number } | null {
+    if (!horario) {
+      return null;
+    }
+
+    const normalizado = horario.toLowerCase().trim();
+    if (normalizado.includes('cerrado')) {
+      return null;
+    }
+
+    const coincidencia = normalizado.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+    if (!coincidencia) {
+      return null;
+    }
+
+    const inicioHora = Number(coincidencia[1]);
+    const inicioMin = Number(coincidencia[2]);
+    const finHora = Number(coincidencia[3]);
+    const finMin = Number(coincidencia[4]);
+
+    if ([inicioHora, inicioMin, finHora, finMin].some((valor) => Number.isNaN(valor))) {
+      return null;
+    }
+
+    return {
+      inicio: (inicioHora * 60) + inicioMin,
+      fin: (finHora * 60) + finMin
+    };
   }
 
   realizarCompra(customerId: number): void {

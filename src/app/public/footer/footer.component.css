@@ -1,7 +1,9 @@
 
 /* ===== FOOTER PRINCIPAL ===== */
 .modern-footer {
-  background: linear-gradient(135deg, #59514F 0%, #4a413e 50%, #3d3835 100%);
+  background:
+    radial-gradient(circle at top left, rgba(217, 187, 132, 0.18), transparent 35%),
+    linear-gradient(135deg, #59514F 0%, #4a413e 50%, #3d3835 100%);
   color: #F2E6D0;
   padding: 60px 0 40px;
   margin-top: 80px;
@@ -22,6 +24,16 @@
 /* ===== MARCA DEL FOOTER ===== */
 .footer-brand {
   padding-right: 20px;
+}
+
+.footer-eyebrow {
+  display: inline-block;
+  color: #F2E6D0;
+  opacity: 0.8;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
 }
 
 .brand-title {
@@ -63,11 +75,21 @@
   box-shadow: 0 4px 15px rgba(217, 187, 132, 0.3);
 }
 
+.social-link-whatsapp {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #ffffff;
+}
+
 .social-link:hover {
   background: linear-gradient(135deg, #F2E6D0 0%, #D9BB84 100%);
   color: #59514F;
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(217, 187, 132, 0.4);
+}
+
+.social-link-whatsapp:hover {
+  background: linear-gradient(135deg, #25D366 0%, #1da95c 100%);
+  color: #ffffff;
 }
 
 /* ===== SECCIONES DEL FOOTER ===== */
@@ -161,6 +183,72 @@
   opacity: 0.9;
 }
 
+.contact-link {
+  color: #F2E6D0;
+  text-decoration: none;
+  opacity: 0.95;
+  transition: color 0.3s ease;
+}
+
+.contact-link:hover {
+  color: #D9BB84;
+}
+
+.whatsapp-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 12px 18px;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 14px 30px rgba(18, 140, 126, 0.25);
+  transition: all 0.3s ease;
+}
+
+.whatsapp-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(18, 140, 126, 0.35);
+  color: #ffffff;
+}
+
+.hours-panel {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(217, 187, 132, 0.18);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.hours-list {
+  display: grid;
+  gap: 12px;
+}
+
+.hours-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(242, 230, 208, 0.06);
+}
+
+.hours-day {
+  color: #D9BB84;
+  font-weight: 600;
+}
+
+.hours-time {
+  color: #F2E6D0;
+  opacity: 0.92;
+  text-align: right;
+}
+
 /* ===== FOOTER BOTTOM ===== */
 .footer-bottom {
   background: linear-gradient(135deg, #3d3835 0%, #2a2522 100%);
@@ -245,6 +333,20 @@
     text-align: center;
     padding-right: 0;
     margin-bottom: 40px;
+  }
+
+  .hours-panel {
+    padding: 22px;
+  }
+
+  .hours-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .hours-time {
+    text-align: left;
   }
 }
 
