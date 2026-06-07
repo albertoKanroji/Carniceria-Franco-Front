@@ -156,14 +156,14 @@ export class CarritoComponent implements OnInit, OnDestroy {
   incrementarCantidad(productoId: number): void {
     const item = this.itemsCarrito.find(i => i.producto.id === productoId);
     if (item) {
-      this.actualizarCantidad(productoId, item.cantidad + 1);
+      this.actualizarCantidad(productoId, Math.trunc(Number(item.cantidad || 0)) + 1);
     }
   }
 
   decrementarCantidad(productoId: number): void {
     const item = this.itemsCarrito.find(i => i.producto.id === productoId);
-    if (item && item.cantidad > 1) {
-      this.actualizarCantidad(productoId, item.cantidad - 1);
+    if (item && Math.trunc(Number(item.cantidad || 0)) > 1) {
+      this.actualizarCantidad(productoId, Math.trunc(Number(item.cantidad || 0)) - 1);
     }
   }
 
@@ -448,13 +448,12 @@ export class CarritoComponent implements OnInit, OnDestroy {
       const precioBase = Number(item.producto.precio_final || item.producto.precio_oferta || item.producto.precio || 0);
 
       if (tipo === 'cantidad') {
-        // Cambiar a venta por cantidad
-        const cantidad = Number(item.cantidad) || 1;
-        this.carritoService.actualizarCantidad(productoId, cantidad);
+        // Cambiar a venta por cantidad y dejar siempre 1 unidad entera
+        this.carritoService.actualizarCantidad(productoId, 1);
       } else {
         // Cambiar a venta por pesos
-        const montoBase = item.monto_pesos ? Number(item.monto_pesos) : (precioBase * Number(item.cantidad || 1));
-        this.carritoService.actualizarMontoPesos(productoId, montoBase);
+        const montoBase = item.monto_pesos ? Number(item.monto_pesos) : (precioBase * Math.max(1, Math.trunc(Number(item.cantidad || 1))));
+        this.carritoService.actualizarMontoPesos(productoId, this.redondearDosDecimales(montoBase));
       }
     }
   }
@@ -486,8 +485,20 @@ export class CarritoComponent implements OnInit, OnDestroy {
   actualizarMontoPesos(productoId: number, monto: number): void {
     const montoNum = Number(monto);
     if (montoNum > 0) {
-      this.carritoService.actualizarMontoPesos(productoId, montoNum);
+      this.carritoService.actualizarMontoPesos(productoId, this.redondearDosDecimales(montoNum));
     }
+  }
+
+  formatoMontoPesos(monto?: number): string {
+    if (monto === null || monto === undefined || Number.isNaN(Number(monto))) {
+      return '';
+    }
+
+    return this.redondearDosDecimales(Number(monto)).toFixed(2);
+  }
+
+  formatoCantidadEntera(cantidad?: number): number {
+    return Math.max(1, Math.trunc(Number(cantidad || 0)));
   }
 
   // Verificar si el producto puede venderse por pesos
@@ -592,6 +603,10 @@ export class CarritoComponent implements OnInit, OnDestroy {
       inicio: (inicioHora * 60) + inicioMin,
       fin: (finHora * 60) + finMin
     };
+  }
+
+  private redondearDosDecimales(valor: number): number {
+    return Math.round((Number(valor) + Number.EPSILON) * 100) / 100;
   }
 
   realizarCompra(customerId: number): void {

@@ -112,11 +112,11 @@
                     <input
                       type="number"
                       class="qty-input"
-                      [value]="item.cantidad"
+                      [value]="formatoCantidadEntera(item.cantidad)"
                       (change)="actualizarCantidad(item.producto.id, $any($event.target).value)"
                       min="1"
                       [max]="item.producto.stock"
-                      step="0.01">
+                      step="1">
                     <button
                       class="qty-btn"
                       (click)="incrementarCantidad(item.producto.id)"
@@ -132,11 +132,12 @@
                       <input
                         type="number"
                         class="form-control pesos-input"
-                        [value]="item.monto_pesos"
+                        [value]="formatoMontoPesos(item.monto_pesos)"
                         (change)="actualizarMontoPesos(item.producto.id, $any($event.target).value)"
                         min="1"
                         step="0.01"
-                        placeholder="50.00">
+                        placeholder="50.00"
+                        inputmode="decimal">
                     </div>
                     <small class="pesos-equivalence">
                       ≈ {{ (item.cantidad || 0).toFixed(3) }} {{ item.producto.unidad_venta }}(s)
@@ -320,7 +321,7 @@
             <span class="product-name">{{ i + 1 }}. {{ item.producto.nombre }}</span>
             <div class="product-details">
               <span *ngIf="item.tipoVenta === 'cantidad'">
-                {{ (+(item.cantidad || 0)).toFixed(2) }} {{ item.producto.unidad_venta }}(s)
+                {{ formatoCantidadEntera(item.cantidad) }} {{ item.producto.unidad_venta }}(s)
               </span>
               <span *ngIf="item.tipoVenta === 'pesos'">
                 ${{ (+(item.monto_pesos || 0)).toFixed(2) }} (≈{{ (+(item.cantidad || 0)).toFixed(3) }} {{ item.producto.unidad_venta }}s)
