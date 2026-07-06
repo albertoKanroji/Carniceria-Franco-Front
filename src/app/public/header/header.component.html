@@ -56,6 +56,89 @@
               <i class="fas fa-envelope me-2"></i>Contáctanos
             </a>
 
+            <!-- Notificaciones -->
+            <div class="nav-item dropdown ms-lg-2 me-lg-2">
+              <button
+                class="btn btn-alerts position-relative"
+                type="button"
+                id="alertasDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="fas fa-bell me-2"></i>
+                <span class="d-none d-lg-inline">Notificaciones</span>
+                <span
+                  *ngIf="cantidadAlertasNoLeidas > 0"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge"
+                >
+                  {{ cantidadAlertasNoLeidas }}
+                </span>
+              </button>
+
+              <ul class="dropdown-menu alertas-dropdown" aria-labelledby="alertasDropdown">
+                <li class="dropdown-header d-flex justify-content-between align-items-center">
+                  <span><i class="fas fa-bell me-2"></i>Alertas del sitio</span>
+                  <span class="badge bg-dark text-light">{{ alertas.length }}</span>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+
+                <li *ngIf="loading" class="px-3 py-2 text-muted small">
+                  Cargando alertas...
+                </li>
+
+                <li *ngIf="!loading && alertas.length === 0" class="text-center py-3">
+                  <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                  <p class="text-muted mb-0">Sin alertas disponibles</p>
+                </li>
+
+                <li *ngIf="!loading && alertasNoLeidas.length > 0" class="alertas-section-title">
+                  No leídas
+                </li>
+
+                <li
+                  *ngFor="let alerta of alertasNoLeidas"
+                  class="dropdown-item alert-item"
+                >
+                  <div class="d-flex align-items-start gap-2">
+                    <div class="flex-grow-1" (click)="abrirAlertaEnModal(alerta)">
+                      <div class="d-flex align-items-center gap-2 mb-1">
+                        <span [class]="getClaseTipoAlerta(alerta.tipo)">{{ alerta.tipo }}</span>
+                        <small class="text-muted">{{ formatFecha(alerta.fecha_inicio || alerta.created_at) }}</small>
+                      </div>
+                      <strong class="d-block product-name">{{ alerta.titulo }}</strong>
+                      <small class="text-muted text-break">{{ alerta.descripcion }}</small>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-success"
+                      (click)="marcarComoLeida(alerta); $event.stopPropagation()"
+                    >
+                      Leída
+                    </button>
+                  </div>
+                </li>
+
+                <li *ngIf="!loading && alertasLeidas.length > 0"><hr class="dropdown-divider" /></li>
+                <li *ngIf="!loading && alertasLeidas.length > 0" class="alertas-section-title">
+                  Leídas
+                </li>
+
+                <li
+                  *ngFor="let alerta of alertasLeidas"
+                  class="dropdown-item alert-item leida"
+                  (click)="abrirAlertaEnModal(alerta)"
+                >
+                  <div class="d-flex align-items-center justify-content-between gap-2">
+                    <div>
+                      <strong class="d-block product-name">{{ alerta.titulo }}</strong>
+                      <small class="text-muted">{{ formatFecha(alerta.fecha_inicio || alerta.created_at) }}</small>
+                    </div>
+                    <i class="fas fa-check-circle text-success"></i>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
             <!-- Botón de Mi Carrito -->
             <div *ngIf="isLoggedIn" class="nav-item dropdown ms-auto me-3">
               <button
@@ -204,9 +287,9 @@
 
       <!-- Imagen (más grande y redondeada) -->
       <img
-        *ngIf="modalNotificacion?.logo"
+        *ngIf="modalNotificacion?.imagen_url"
         class="mx-auto mb-3 rounded-circle shadow-lg border border-3 border-light"
-        [src]="'data:image/png;base64,' + modalNotificacion.logo"
+        [src]="modalNotificacion!.imagen_url"
         style="
           width: 120px;
           height: 120px;
@@ -217,7 +300,7 @@
 
       <h2 class="fw-bold mb-2" style="font-size: 1.8rem; color: white">
         <i class="fa fa-bullhorn text-danger me-2"></i>
-        {{ modalNotificacion?.nombre }}
+        {{ modalNotificacion?.titulo }}
       </h2>
 
       <!-- Descripción -->
@@ -225,11 +308,18 @@
 
       <!-- Fecha -->
       <div class="text-muted mb-3">
-        <small>{{ formatFecha(modalNotificacion?.fecha_envio) }}</small>
+        <small>{{ formatFecha(modalNotificacion?.fecha_inicio || modalNotificacion?.created_at || null) }}</small>
       </div>
 
       <!-- Botones -->
       <div class="d-flex justify-content-center gap-3">
+        <button
+          type="button"
+          class="btn btn-success px-4"
+          (click)="marcarComoLeida(modalNotificacion!, true)"
+        >
+          <i class="fas fa-check me-2"></i>Marcar como leída
+        </button>
         <button
           type="button"
           class="btn btn-outline-light px-4"
@@ -237,14 +327,7 @@
         >
           Cerrar
         </button>
-        <a
-          *ngIf="modalNotificacion?.enlace"
-          [href]="modalNotificacion.enlace"
-          target="_blank"
-          class="btn btn-danger px-4"
-        >
-          Ir ahora
-        </a>
+      
       </div>
     </div>
   </div>

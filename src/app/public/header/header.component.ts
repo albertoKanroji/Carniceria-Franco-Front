@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/services/auth-service/auth-service.service';
-import { NotificacionService } from 'src/services/notificacion-service/notificaciones.service';
+import {
+  AlertaSitio,
+  NotificacionService,
+} from 'src/services/notificacion-service/notificaciones.service';
 import { CarritoService, ItemCarrito } from 'src/services/carrito/carrito.service';
 import { environment } from 'src/environments/environment';
 declare var bootstrap: any;
@@ -11,46 +14,23 @@ declare var bootstrap: any;
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
-  modalNotificacion: any;
+  private readonly alertasLeidasStorageKey = 'alertas_leidas_ids';
+  private modalInstance: any;
+  private colaAlertasModal: AlertaSitio[] = [];
+
+  modalNotificacion: AlertaSitio | null = null;
   selectedTheme: string | undefined;
   loading: boolean = false;
-  notificaciones: any[] = [];
+  alertas: AlertaSitio[] = [];
+  alertasNoLeidas: AlertaSitio[] = [];
+  alertasLeidas: AlertaSitio[] = [];
   isLoggedIn = false;
   buttonText!: string;
   userImage: string | null = null;
   userName: string | null = null;
   profileStatusIcon: string | null = null;
-  notificacionesOriginales: any[] = [];
   itemsCarrito: ItemCarrito[] = [];
   cantidadCarrito: number = 0;
-
-  mostrarModal(notificacion: any): void {
-    const vistas = JSON.parse(
-      localStorage.getItem('notificaciones_vistas') || '[]'
-    );
-
-    if (!vistas.includes(notificacion.id)) {
-      vistas.push(notificacion.id);
-      localStorage.setItem('notificaciones_vistas', JSON.stringify(vistas));
-    }
-
-    this.modalNotificacion = notificacion;
-    const modal = new bootstrap.Modal(
-      document.getElementById('notificacionModal')!
-    );
-    modal.show();
-    this.notificacionesOriginales = this.notificacionesOriginales.filter(
-      (n) => n.id !== notificacion.id
-    );
-  }
-  filtrarNotificacionesNoVistas(): void {
-    const vistas = JSON.parse(
-      localStorage.getItem('notificaciones_vistas') || '[]'
-    );
-    this.notificaciones = this.notificacionesOriginales.filter(
-      (n) => !vistas.includes(n.id)
-    );
-  }
 
   constructor(
     private router: Router,
@@ -101,29 +81,117 @@ export class HeaderComponent implements OnInit {
     this.selectedTheme = localStorage.getItem('selectedTheme') || 'light'; // Establecer el tema predeterminado como 'light' si no hay ningún tema seleccionado
     this.updateButtonText(this.selectedTheme); // Actualizar el texto del botón al cargar la aplicación
     this.applyTheme(this.selectedTheme); // Aplicar el tema al cargar la aplicación
-    this.obtenerNotificaciones(); // Obtener las rutinas al cargar la aplicación
+    this.obtenerAlertas();
   }
-  obtenerNotificaciones(): void {
+
+  get cantidadAlertasNoLeidas(): number {
+    return this.alertasNoLeidas.length;
+  }
+
+  obtenerAlertas(): void {
     this.loading = true;
 
-    const vistas = JSON.parse(localStorage.getItem('notificaciones_vistas') || '[]');
-
-    this.notificacionService.obtenerNotificaciones().subscribe(
-      (data: any) => {
-        // Filtra las no vistas
-        this.notificacionesOriginales = data.data.filter(
-          (n: any) => !vistas.includes(n.id)
-        );
+    this.notificacionService.obtenerAlertasSitio().subscribe(
+      (response) => {
+        this.alertas = response?.data || [];
+        this.sincronizarAlertasPorLectura();
+        this.iniciarColaDeModales();
         this.loading = false;
       },
       (error) => {
-        console.error('Error al obtener las rutinas:', error);
+        console.error('Error al obtener las alertas:', error);
         this.loading = false;
       }
     );
   }
 
-  formatFecha(fecha: string): string {
+  abrirAlertaEnModal(alerta: AlertaSitio): void {
+    this.modalNotificacion = alerta;
+    this.abrirModal();
+  }
+
+  marcarComoLeida(alerta: AlertaSitio, cerrarModal: boolean = false): void {
+    const idsLeidos = this.obtenerIdsLeidos();
+
+    if (!idsLeidos.includes(alerta.id)) {
+      idsLeidos.push(alerta.id);
+      localStorage.setItem(this.alertasLeidasStorageKey, JSON.stringify(idsLeidos));
+    }
+
+    this.sincronizarAlertasPorLectura();
+
+    if (cerrarModal && this.modalNotificacion?.id === alerta.id && this.modalInstance) {
+      this.modalInstance.hide();
+    }
+  }
+
+  private sincronizarAlertasPorLectura(): void {
+    const idsLeidos = this.obtenerIdsLeidos();
+    const leidasSet = new Set(idsLeidos);
+
+    this.alertasNoLeidas = this.alertas.filter((alerta) => !leidasSet.has(alerta.id));
+    this.alertasLeidas = this.alertas.filter((alerta) => leidasSet.has(alerta.id));
+  }
+
+  private iniciarColaDeModales(): void {
+    this.colaAlertasModal = [...this.alertasNoLeidas];
+    this.mostrarSiguienteAlertaEnModal();
+  }
+
+  private mostrarSiguienteAlertaEnModal(): void {
+    if (this.colaAlertasModal.length === 0) {
+      return;
+    }
+
+    this.modalNotificacion = this.colaAlertasModal.shift() || null;
+    this.abrirModal();
+  }
+
+  private abrirModal(): void {
+    const modalElement = document.getElementById('notificacionModal');
+
+    if (!modalElement || !this.modalNotificacion) {
+      return;
+    }
+
+    if (!this.modalInstance) {
+      this.modalInstance = new bootstrap.Modal(modalElement);
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        if (this.colaAlertasModal.length > 0) {
+          this.mostrarSiguienteAlertaEnModal();
+        }
+      });
+    }
+
+    this.modalInstance.show();
+  }
+
+  private obtenerIdsLeidos(): number[] {
+    const idsRaw = localStorage.getItem(this.alertasLeidasStorageKey);
+
+    if (!idsRaw) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(idsRaw);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed
+        .map((value) => Number(value))
+        .filter((value) => Number.isInteger(value));
+    } catch {
+      return [];
+    }
+  }
+
+  formatFecha(fecha: string | null): string {
+    if (!fecha) {
+      return 'Sin fecha';
+    }
+
     const fechaObj = new Date(fecha);
     const opciones: Intl.DateTimeFormatOptions = {
       year: 'numeric',
@@ -179,5 +247,16 @@ export class HeaderComponent implements OnInit {
 
   eliminarDelCarrito(productoId: number): void {
     this.carritoService.eliminarProducto(productoId);
+  }
+
+  getClaseTipoAlerta(tipo: string): string {
+    switch ((tipo || '').toLowerCase()) {
+      case 'oferta':
+        return 'badge bg-danger-subtle text-danger';
+      case 'anuncio':
+        return 'badge bg-primary-subtle text-primary';
+      default:
+        return 'badge bg-secondary-subtle text-secondary';
+    }
   }
 }
